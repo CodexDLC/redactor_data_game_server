@@ -21,9 +21,7 @@ class BaseLeftPanel(tk.Frame):
         self.notebook.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
         self.notebook.bind("<Configure>", self.on_notebook_configure)
-
-        self.draw_all_miniatures()
-
+        
     def on_notebook_configure(self, event):
         container_width = event.width
         if container_width > 0:

@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtualenv
+env/
+venv/
+ENV/
+.VENV/
+.venv/
+
+# PyCharm
+.idea/
+
+# Logs
+*.log
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# dotenv
+.env
+*.env
+
+# Mypy
+.mypy_cache/
+
+# Coverage
+.coverage
+htmlcov/
+.cache/
+
+# Test
+.tox/
+.pytest_cache/
+
+# VSCode (если открываешь проект там)
+.vscode/

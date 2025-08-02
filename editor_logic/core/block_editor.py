@@ -145,3 +145,20 @@ class BlockEditor(BaseEditor):
         self.controls.blocks_listbox.delete(0, tk.END)
         for name in sorted(self.blocks.keys()):
             self.controls.blocks_listbox.insert(tk.END, name)
+
+    def on_left_click(self, row, col):
+        if 0 <= row < self.grid_size and 0 <= col < self.grid_size:
+            self.grid_data[row][col] = self.selected_tile_value
+            self.draw_grid()
+            self.generate_code()
+
+    def on_middle_click(self, row, col):
+        if 0 <= row < self.grid_size and 0 <= col < self.grid_size:
+            self.selected_tile_value = self.grid_data[row][col]
+            self.update_border_color()
+
+    def on_right_click(self, row, col):
+        if 0 <= row < self.grid_size and 0 <= col < self.grid_size:
+            self.grid_data[row][col] = 1  # Сброс на тайл по умолчанию (пол)
+            self.draw_grid()
+            self.generate_code()
