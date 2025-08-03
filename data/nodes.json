@@ -1,0 +1,28 @@
+{
+    "wall": {
+        "display_name": "Стена",
+        "is_walkable": false,
+        "color": "#000000",
+        "type": "SOLID",
+        "properties": {
+            "material_type": "",
+            "is_vision_blocker": true,
+            "is_trigger": false,
+            "can_be_secret": false
+        }
+    },
+    "floor": {
+        "display_name": "Пол",
+        "is_walkable": true,
+        "color": "#c0c0c0",
+        "type": "WALKABLE",
+        "properties": {
+            "material_type": "",
+            "is_vision_blocker": false,
+            "is_trigger": false,
+            "can_be_secret": false,
+            "movement_time": "",
+            "is_dangerous": false
+        }
+    }
+}

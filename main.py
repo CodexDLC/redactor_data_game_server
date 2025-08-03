@@ -1,59 +1,52 @@
-# main.py
-
-import pygame, sys
-import game_ui
-from generator.generator import DungeonGenerator
-
-# --- КОНСТАНТЫ ---
-# Эти константы теперь определяют масштаб отрисовки, а не логику
-SCREEN_WIDTH, SCREEN_HEIGHT, FPS = 800, 800, 30
-GRID_CELL_SIZE = 144
-PLAYER_SIZE_PIXELS = (GRID_CELL_SIZE / 9) * 1.5
-
-# --- Цвета ---
-WHITE, PURPLE = (255, 255, 255), (160, 32, 240)
-GRID_BG_COLOR, TILE_WALL_COLOR = (25, 25, 25), (50, 50, 50)
-TILE_FLOOR_COLOR, TILE_EXIT_COLOR = (120, 120, 120), (200, 150, 50)
-
-# Словарь для хранения констант и состояния
-CONSTANTS = {
-    "GRID_CELL_SIZE": GRID_CELL_SIZE, "FPS": FPS, "WHITE": WHITE, "PURPLE": PURPLE,
-    "GRID_BG_COLOR": GRID_BG_COLOR, "TILE_WALL_COLOR": TILE_WALL_COLOR,
-    "TILE_FLOOR_COLOR": TILE_FLOOR_COLOR, "TILE_EXIT_COLOR": TILE_EXIT_COLOR
-}
+import tkinter as tk
+from map_editor_app import MapEditorApp
 
 
-def main():
-    pygame.init()
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    pygame.display.set_caption("Архитектор Подземелий v3.0")
-    clock = pygame.time.Clock()
+class MainApplication(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("Главное Меню")
+        self.geometry("1200x800")
+        self.config(bg="#333333")
 
-    dungeon_generator = DungeonGenerator()
-    dungeon_document = dungeon_generator.start_new_dungeon()
+        self._container = tk.Frame(self)
+        self._container.pack(fill="both", expand=True)
 
-    # Создание игрока в центре комнаты (4, 4)
-    start_room = dungeon_document["rooms"][dungeon_document["current_room_id"]]
-    start_coords = (4, 4)  # Инициализируем игрока в центре
-    player = game_ui.Player(start_coords[0], start_coords[1], start_room, PURPLE, PLAYER_SIZE_PIXELS)
+        self._current_frame = None
+        self.show_main_menu()
 
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
+    def switch_frame(self, frame_class):
+        """Уничтожает старый фрейм и показывает новый."""
+        if self._current_frame:
+            self._current_frame.destroy()
 
-            if event.type == pygame.KEYDOWN:
-                # Обновление состояния игрока и подземелья через генератор
-                dungeon_document = dungeon_generator.handle_player_move(dungeon_document, player, event.key)
+        # Передаем контейнер в качестве родителя для нового фрейма
+        self._current_frame = frame_class(self._container)
+        self._current_frame.pack(fill="both", expand=True)
 
-        game_ui.draw_dungeon(screen, dungeon_document, player, CONSTANTS)
-        pygame.display.flip()
-        clock.tick(FPS)
+    def show_main_menu(self):
+        """Показывает главный экран с выбором редакторов."""
+        self.switch_frame(MainMenuFrame)
 
-    pygame.quit()
-    sys.exit()
+    def show_map_editor(self):
+        """Показывает редактор карт."""
+        self.switch_frame(MapEditorApp)
+
+
+class MainMenuFrame(tk.Frame):
+    """Фрейм для главного меню."""
+
+    def __init__(self, master):
+        super().__init__(master, bg="#333333")
+
+        app_controller = master.master  # Получаем доступ к MainApplication
+
+        tk.Label(self, text="Выберите редактор:", font=("Helvetica", 16), fg="white", bg="#333333").pack(pady=20)
+
+        tk.Button(self, text="Редактор Карт", command=app_controller.show_map_editor, font=("Helvetica", 14),
+                  width=30, height=2, bg="#444444", fg="white").pack(pady=10)
 
 
 if __name__ == "__main__":
-    main()
+    app = MainApplication()
+    app.mainloop()
