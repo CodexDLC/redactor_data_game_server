@@ -1,23 +1,29 @@
+# File: interfaces/ui/i_block_editor_view.py
+from typing import Any, Callable
 from abc import ABC, abstractmethod
-from typing import Dict, Any, List, Callable
 
 
 class IBlockEditorView(ABC):
-    """Интерфейс для Представления (View) редактора блоков."""
-
     @abstractmethod
-    def update_block_list_in_palette(self, block_keys: List[str]) -> None:
-        """Обновляет список блоков в левой панели-палитре."""
+    def set_form_data(self, data: dict) -> None:
         pass
 
     @abstractmethod
-    def get_grid_data(self) -> List[List[str]]:
-        """Возвращает текущее состояние сетки 3x3 (массив из ID нод)."""
+    def get_form_data(self) -> dict:
         pass
 
     @abstractmethod
-    def draw_grid(self, grid_data: List[List[str]]) -> None:
-        """Отрисовывает сетку 3x3 на основе предоставленных данных."""
+    def clear_form(self) -> None:
         pass
 
-    # Здесь будут и другие методы для связи с UI...
+    @abstractmethod
+    def bind_save_command(self, command: Callable[[Any], None]) -> None:
+        pass
+
+    @abstractmethod
+    def bind_delete_command(self, command: Callable[[Any], None]) -> None:
+        pass
+
+    @abstractmethod
+    def bind_new_command(self, command: Callable[[Any], None]) -> None:
+        pass
