@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from typing import Dict, Any, Tuple
+from .context_menu import add_editing_menu # <-- Обновлен импорт
 
 
 def create_widget_for_property(parent: tk.Widget, key: str, prop_info: Dict[str, Any]) -> Tuple[tk.Widget, Any]:
@@ -28,4 +29,5 @@ def create_widget_for_property(parent: tk.Widget, key: str, prop_info: Dict[str,
         variable = tk.StringVar()
         widget = tk.Entry(frame, textvariable=variable, bg="#444444", fg="white")
         widget.pack(side=tk.RIGHT, fill=tk.X, expand=True)
+        add_editing_menu(widget) # <-- Обновлено
         return frame, (variable, widget)

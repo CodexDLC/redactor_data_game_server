@@ -1,13 +1,14 @@
 import tkinter as tk
 from tkinter import ttk, colorchooser
-from typing import Dict, Any
+from typing import Dict, Any, Callable
 import json
 
-from .widget_factory import create_widget_for_property
-from ..widgets.context_menu import add_right_click_menu  # <<< Импорт нашей новой функции
+from ...widgets.widget_factory import create_widget_for_property
+from ...widgets.context_menu import add_editing_menu  # <-- Заменено на новую функцию
+from ...base_editor_controls import BaseEditorControls
 
 
-class NodeEditorControls(tk.Frame):
+class NodeEditorControls(BaseEditorControls):
     """Панель управления справа со всеми виджетами."""
     TYPE_MAPPING = {
         "Проходимый": "WALKABLE",
@@ -15,18 +16,10 @@ class NodeEditorControls(tk.Frame):
     }
 
     def __init__(self, master, schema: Dict[str, Any], parent_view):
-        super().__init__(master)
         self.schema = schema
-        self.parent_view = parent_view
-        self.config(bg="#333333")
-
         self.selected_color = "#ffffff"
         self._property_widgets: Dict[str, Any] = {}
-
-        self.preview_window = None
-        self.preview_text = None
-
-        self._build_ui()
+        super().__init__(master, parent_view)
 
     def _build_ui(self):
         """Строит весь интерфейс панели."""
@@ -37,12 +30,12 @@ class NodeEditorControls(tk.Frame):
         tk.Label(main_props_frame, text="Ключ ноды (node_key):", fg="white", bg="#333333").pack(anchor="w")
         self.node_key_entry = tk.Entry(main_props_frame, bg="#444444", fg="white")
         self.node_key_entry.pack(fill=tk.X, pady=(0, 5))
-        add_right_click_menu(self.node_key_entry)  # <<< ПРИМЕНЯЕМ МЕНЮ ПОСЛЕ СОЗДАНИЯ
+        add_editing_menu(self.node_key_entry)  # <-- Обновлено
 
         tk.Label(main_props_frame, text="Имя для UI:", fg="white", bg="#333333").pack(anchor="w")
         self.display_name_entry = tk.Entry(main_props_frame, bg="#444444", fg="white")
         self.display_name_entry.pack(fill=tk.X, pady=(0, 5))
-        add_right_click_menu(self.display_name_entry)  # <<< ПРИМЕНЯЕМ МЕНЮ ПОСЛЕ СОЗДАНИЯ
+        add_editing_menu(self.display_name_entry)  # <-- Обновлено
 
         tk.Label(main_props_frame, text="Цвет:", fg="white", bg="#333333").pack(anchor="w")
         self.color_button = tk.Button(main_props_frame, text="Выбрать цвет", command=self._select_color)
@@ -59,18 +52,8 @@ class NodeEditorControls(tk.Frame):
                                                  pady=5)
         self.context_props_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        # --- Зона 3: Действия ---
-        actions_frame = tk.LabelFrame(self, text="Действия", fg="white", bg="#333333", padx=5, pady=5)
-        actions_frame.pack(fill=tk.X, padx=5, pady=5, side=tk.BOTTOM)
-        self.save_button = tk.Button(actions_frame, text="Сохранить", bg="#444444", fg="white")
-        self.save_button.pack(fill=tk.X, pady=2)
-        self.delete_button = tk.Button(actions_frame, text="Удалить", bg="#444444", fg="white")
-        self.delete_button.pack(fill=tk.X, pady=2)
-        self.new_button = tk.Button(actions_frame, text="Создать новый", bg="#444444", fg="white")
-        self.new_button.pack(fill=tk.X, pady=2)
-        self.show_code_button = tk.Button(actions_frame, text="Показать код", bg="#444444", fg="white",
-                                          command=self._show_code_preview)
-        self.show_code_button.pack(fill=tk.X, pady=2)
+        # Вызываем родительский метод для создания общих кнопок
+        super()._build_ui()
 
     def _on_type_changed(self, event=None):
         """Перерисовывает Зону 2 на основе выбранного типа."""
@@ -110,7 +93,7 @@ class NodeEditorControls(tk.Frame):
         self.parent_view.preview_canvas.config(bg=self.selected_color)
         # Обновляем окно с кодом, если оно открыто
         if hasattr(self, 'preview_window') and self.preview_window and self.preview_window.winfo_exists():
-            self._update_preview_content()
+            self.preview_window.update_content(self.parent_view.get_form_data())
 
     def _get_text_color_for_bg(self, bg_color):
         """Определяет, какой цвет текста (черный/белый) лучше для фона."""
@@ -120,40 +103,12 @@ class NodeEditorControls(tk.Frame):
             brightness = (r * 299 + g * 587 + b * 114) / 1000
             return "white" if brightness < 32768 else "black"
         except tk.TclError:
-            return "white" # Возвращаем белый в случае ошибки
+            return "white"  # Возвращаем белый в случае ошибки
 
-    # <<< ВОЗВРАЩАЕМ МЕТОДЫ ДЛЯ ПРЕДПРОСМОТРА КОДА
-    def _update_preview_content(self):
-        """Обновляет содержимое окна предпросмотра."""
-        node_data = self.parent_view.get_form_data()
-        formatted_json = json.dumps(node_data, indent=4, ensure_ascii=False)
-        self.preview_text.config(state=tk.NORMAL)
-        self.preview_text.delete('1.0', tk.END)
-        self.preview_text.insert(tk.END, formatted_json)
-        self.preview_text.config(state=tk.DISABLED)
+    def bind_show_code_command(self, command: Callable[[Any], None]) -> None:
+        self.show_code_button.config(command=lambda: self._show_code_preview_wrapper(command))
 
-    def _create_preview_window(self):
-        """Создает окно предпросмотра."""
-        self.preview_window = tk.Toplevel(self)
-        self.preview_window.title("Предпросмотр Кода Ноды")
-        self.preview_window.geometry("400x500")
-        self.preview_window.config(bg="#333333")
-        self.preview_window.attributes("-topmost", True)
-        self.preview_window.transient(self.winfo_toplevel())
-
-        toolbar = tk.Frame(self.preview_window, bg="#333333")
-        toolbar.pack(fill=tk.X, padx=5, pady=5)
-        tk.Button(toolbar, text="Обновить", command=self._update_preview_content, bg="#444444", fg="white").pack(
-            side=tk.LEFT)
-
-        self.preview_text = tk.Text(self.preview_window, bg="#222222", fg="white", wrap=tk.WORD, font=("Courier", 10))
-        self.preview_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-        self._update_preview_content()
-
-    def _show_code_preview(self):
-        """Переключает видимость окна предпросмотра."""
-        if not self.preview_window or not self.preview_window.winfo_exists():
-            self._create_preview_window()
-        else:
-            self.preview_window.destroy()
-            self.preview_window = None
+    def _show_code_preview_wrapper(self, command: Callable[[Any], None]):
+        """Обертка для вызова единого окна предпросмотра."""
+        data = self.parent_view.get_form_data()
+        command(data, "Код данных ноды")

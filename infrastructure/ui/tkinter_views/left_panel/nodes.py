@@ -1,20 +1,25 @@
-# File: infrastructure/ui/tkinter_views/left_panel/nodes.py (version 0.7)
+# File: infrastructure/ui/tkinter_views/left_panel/nodes.py (version 1.0)
 import tkinter as tk
 from typing import Any, Callable
 
 from .base import BaseLeftPanel
 from interfaces.ui.i_nodes_panel_view import INodesPanelView
 from interfaces.persistence.i_node_repository import INodeRepository
-from ..widgets.floating_palette import FloatingPaletteWindow
 
 
 class NodesPanel(BaseLeftPanel, INodesPanelView):
     def __init__(self, master, app, node_repo: INodeRepository, miniature_size, miniature_padding, font, frame_width):
         super().__init__(master, app, {}, miniature_size, miniature_padding, font, frame_width)
-        # --- ИСПРАВЛЕНИЕ: Добавляем строку для сохранения node_repo ---
         self.node_repo = node_repo
 
-        tk.Label(self, text="Доступные ноды", fg="white", bg="#333333").pack(pady=5)
+        header_frame = tk.Frame(self, bg="#333333")
+        header_frame.pack(fill=tk.X, pady=5)
+
+        # Индикатор кисточки
+        self.brush_indicator = tk.Frame(header_frame, width=15, height=15, bg="#333333", bd=1, relief=tk.SUNKEN)
+        self.brush_indicator.pack(side=tk.LEFT, padx=(0, 5))
+
+        tk.Label(header_frame, text="Доступные ноды", fg="white", bg="#333333").pack(side=tk.LEFT)
 
         self.main_frame = tk.Frame(self, bg="#333333")
         self.main_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
@@ -70,9 +75,20 @@ class NodesPanel(BaseLeftPanel, INodesPanelView):
         frame.winfo_children()[1].config(bg="#555555")
 
         self.selected_key = key
+        selected_node_data = self.node_repo.get_by_key(key).copy()
+        selected_node_data['node_key'] = key
+        self.app.set_active_brush_node(selected_node_data)
+        self.update_brush_indicator(selected_node_data['color'])
 
         if self._selection_callback:
             self._selection_callback(None)
+
+    def update_brush_indicator(self, color: str | None):
+        """Обновляет цвет индикатора кисточки в заголовке панели."""
+        if color:
+            self.brush_indicator.config(bg=color)
+        else:
+            self.brush_indicator.config(bg="#333333")
 
     def get_selected_node_key(self) -> str | None:
         return self.selected_key

@@ -28,11 +28,6 @@ class INodeEditorView(ABC):
         pass
 
     @abstractmethod
-    def get_selected_node_key(self) -> str | None:
-        """Возвращает ключ ноды, выбранной в данный момент в списке."""
-        pass
-
-    @abstractmethod
     def bind_save_command(self, command: Callable[[], None]) -> None:
         """Привязывает команду (функцию) к кнопке 'Сохранить'."""
         pass
@@ -47,7 +42,3 @@ class INodeEditorView(ABC):
         """Привязывает команду к кнопке 'Создать новый'."""
         pass
 
-    @abstractmethod
-    def bind_list_selection_command(self, command: Callable[[Any], None]) -> None:
-        """Привязывает команду к событию выбора элемента в списке."""
-        pass
