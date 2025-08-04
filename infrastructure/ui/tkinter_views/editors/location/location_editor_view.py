@@ -1,8 +1,9 @@
-# File: infrastructure/ui/tkinter_views/editors/location/location_editor_view.py (version 0.2)
+# File: infrastructure/ui/tkinter_views/editors/location/location_editor_view.py (version 0.3)
 import tkinter as tk
 from typing import Any, Dict
 from ...base_editor_view import BaseEditorView
 from .location_editor_controls import LocationEditorControls
+from ...styles import *
 
 
 class LocationEditorView(BaseEditorView):
@@ -23,11 +24,11 @@ class LocationEditorView(BaseEditorView):
         self.controls = LocationEditorControls(self.right_frame, self)
         self.controls.pack(fill=tk.BOTH, expand=True)
 
-        self.location_canvas = tk.Canvas(self.center_frame, bg="#222222", highlightthickness=0)
+        self.location_canvas = tk.Canvas(self.center_frame, bg=BG_CANVAS, highlightthickness=0)
         self.location_canvas.pack(expand=True, fill=tk.BOTH, padx=10, pady=5)
 
         self._create_context_menu_for_canvas(self.location_canvas)
-        self.bind_show_code_command(self._show_code_preview_window)
+        self.bind_show_code_command(self._show_code_preview_window, "Код данных локации")
 
     def _set_initial_data(self):
         """Устанавливает базовые значения при запуске редактора."""

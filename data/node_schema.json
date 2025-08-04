@@ -1,38 +1,42 @@
 {
   "common_properties": {
-    "material_type": {
-      "label": "Тип материала:",
-      "type": "dropdown",
-      "options_source": "material_library"
-    },
     "is_vision_blocker": {
       "label": "Может блокировать обзор",
       "type": "boolean"
     },
-    "is_trigger": {
-      "label": "Может быть триггером",
-      "type": "boolean"
-    },
-    "can_be_secret": {
-      "label": "Может быть тайником",
+    "is_block_connector": {
+      "label": "Является коннектором блока",
       "type": "boolean"
     }
   },
   "type_specific_properties": {
     "WALKABLE": {
-      "movement_time": {
-        "label": "Время перемещения (min/max):",
-        "type": "range",
-        "default": [
-          1.0,
-          1.0
-        ]
+      "can_have_movement_time": {
+        "label": "Имеет особое время перемещения",
+        "type": "boolean"
       },
       "is_dangerous": {
         "label": "Может быть опасной",
         "type": "boolean"
+      },
+      "is_walkable_trigger": {
+        "label": "Может быть триггером (проходимый)",
+        "type": "boolean"
+      },
+      "can_be_walkable_secret": {
+        "label": "Может быть тайником (проходимый)",
+        "type": "boolean"
       }
     },
-    "SOLID": {}
+    "SOLID": {
+      "is_solid_trigger": {
+        "label": "Может быть триггером (непроходимый)",
+        "type": "boolean"
+      },
+      "can_be_solid_secret": {
+        "label": "Может быть тайником (непроходимый)",
+        "type": "boolean"
+      }
+    }
   }
 }

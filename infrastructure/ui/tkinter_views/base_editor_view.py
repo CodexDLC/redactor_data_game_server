@@ -1,8 +1,9 @@
-# File: infrastructure/ui/tkinter_views/base_editor_view.py (version 0.4)
+# File: infrastructure/ui/tkinter_views/base_editor_view.py (version 0.5)
 import tkinter as tk
 from typing import Any, Callable, Dict
 from .widgets.code_preview_window import CodePreviewWindow
 from .widgets.universal_context_menu import create_universal_context_menu
+from .styles import *
 
 
 class BaseEditorView(tk.Frame):
@@ -13,7 +14,7 @@ class BaseEditorView(tk.Frame):
     """
 
     def __init__(self, master, app: Any):
-        super().__init__(master)
+        super().__init__(master, bg=BG_PRIMARY)
         self.master = master
         self.app = app
         self._code_preview_window = None
@@ -25,13 +26,13 @@ class BaseEditorView(tk.Frame):
 
     def three_panel_layout(self):
         """Создает общую трехпанельную компоновку."""
-        self.main_paned_window = tk.PanedWindow(self, orient=tk.HORIZONTAL, sashrelief=tk.SUNKEN, bg="#333333")
+        self.main_paned_window = tk.PanedWindow(self, orient=tk.HORIZONTAL, sashrelief=tk.SUNKEN, bg=BG_PRIMARY)
         self.main_paned_window.pack(fill=tk.BOTH, expand=True)
 
-        self.center_frame = tk.Frame(self.main_paned_window, bg="#333333")
+        self.center_frame = tk.Frame(self.main_paned_window, bg=BG_PRIMARY)
         self.main_paned_window.add(self.center_frame, stretch="always")
 
-        self.right_frame = tk.Frame(self.main_paned_window, bg="#333333")
+        self.right_frame = tk.Frame(self.main_paned_window, bg=BG_PRIMARY)
         self.main_paned_window.add(self.right_frame, minsize=300)
 
     def _on_right_click(self, event):
@@ -74,9 +75,10 @@ class BaseEditorView(tk.Frame):
         else:
             self._code_preview_window = CodePreviewWindow(self.master, data, title)
 
-    # <<< ИСПРАВЛЕНИЕ: Добавлен пустой метод для удовлетворения интерфейсу INodeEditorView
     def bind_save_command(self, command: Callable[[], None]) -> None:
-        pass
+        """Привязывает команду к кнопке 'Сохранить' в панели управления."""
+        if self.controls and self.controls.save_button:
+            self.controls.save_button.config(command=command)
 
     def bind_delete_command(self, command: Callable[[], None]) -> None:
         if self.controls and self.controls.delete_button:
@@ -88,9 +90,9 @@ class BaseEditorView(tk.Frame):
         if self.controls and self.controls.new_button:
             self.controls.new_button.config(command=command)
 
-    def bind_show_code_command(self, command: Callable[[Any], None]) -> None:
+    def bind_show_code_command(self, command: Callable[[Any, str], None], title: str) -> None:
         if self.controls and self.controls.show_code_button:
-            self.controls.show_code_button.config(command=lambda: command(self.get_form_data()))
+            self.controls.show_code_button.config(command=lambda: command(self.get_form_data(), title))
 
     def get_form_data(self) -> dict:
         raise NotImplementedError("Дочерний класс должен реализовать этот метод.")

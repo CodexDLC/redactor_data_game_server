@@ -1,21 +1,23 @@
-# File: map_editor_app.py (version 1.9)
+# File: map_editor_app.py
 import tkinter as tk
 from tkinter import ttk
+import logging
+from logging import LogRecord
+from typing import Optional
+
 from infrastructure.persistence.json_node_repository import JsonNodeRepository
 from infrastructure.persistence.json_block_repository import JsonBlockRepository
 from infrastructure.persistence.json_location_repository import JsonLocationRepository
 from infrastructure.persistence.json_schema_repository import JsonSchemaRepository
+from infrastructure.persistence.json_property_repository import JsonPropertyRepository
+from infrastructure.persistence.json_tag_repository import JsonTagRepository  # <--- 1. НОВЫЙ ИМПОРТ
 from infrastructure.ui.tkinter_views.editors.node.node_editor_view import NodeEditorView
 from core.node_editor.node_editor_service import NodeEditorService
 from infrastructure.ui.tkinter_views.left_panel.universal import UniversalLeftPanel
 from infrastructure.ui.tkinter_views.editors.block.block_editor_view import BlockEditorView
 from core.block_editor.block_editor_service import BlockEditorService
 from infrastructure.ui.tkinter_views.widgets.floating_palette import FloatingPaletteWindow
-from typing import Optional, Any
-import logging
-from logging import LogRecord
 from infrastructure.ui.tkinter_views.styles import *
-
 
 MINIATURE_SIZE = 50
 MINIATURE_PADDING = 5
@@ -24,8 +26,6 @@ FRAME_WIDTH = 100
 
 
 class TextWidgetHandler(logging.Handler):
-    """Кастомный обработчик для перенаправления логов в текстовый виджет Tkinter."""
-
     def __init__(self, text_widget):
         super().__init__()
         self.text_widget = text_widget
@@ -39,7 +39,6 @@ class TextWidgetHandler(logging.Handler):
         self.text_widget.see(tk.END)
 
 
-
 class MapEditorApp(tk.Frame):
     def __init__(self, master):
         super().__init__(master, bg=BG_PRIMARY)
@@ -48,12 +47,18 @@ class MapEditorApp(tk.Frame):
         self.logger = logging.getLogger()
         self.logger.setLevel(logging.INFO)
 
+        # --- Инициализация репозиториев ---
         self.node_repo = JsonNodeRepository()
         self.block_repo = JsonBlockRepository()
         self.location_repo = JsonLocationRepository()
+        self.property_repo = JsonPropertyRepository()
+        self.schema_repo = JsonSchemaRepository()
+        self.tag_repo = JsonTagRepository()  # <--- 2. СОЗДАЕМ ЭКЗЕМПЛЯР РЕПОЗИТОРИЯ ТЕГОВ
+
         self.nodes_panel_view = None
         self.active_brush_node: Optional[dict] = None
 
+        # --- Создание UI ---
         self.toolbar = tk.Frame(self, bg=BG_SECONDARY)
         self.toolbar.pack(side=tk.TOP, fill=tk.X)
         self.create_toolbar()
@@ -126,15 +131,20 @@ class MapEditorApp(tk.Frame):
 
     def show_node_editor(self):
         self.clear_editor_container()
-        node_repository = JsonNodeRepository()
-        schema_repository = JsonSchemaRepository()
-        node_schema = schema_repository.get_node_schema()
+        node_schema = self.schema_repo.get_node_schema()
+        # --- 3. ИЗМЕНЕНИЯ ЗДЕСЬ ---
+        # Получаем список тегов для передачи в UI
+        node_tags = self.tag_repo.get_tags_by_category('node_tags')
 
-        view = NodeEditorView(self.editor_container, self, schema=node_schema)
+        # Передаем список тегов в NodeEditorView
+        view = NodeEditorView(self.editor_container, self, schema=node_schema, available_tags=node_tags)
+
+        # Передаем репозиторий тегов в NodeEditorService
         service = NodeEditorService(
             view=view,
             nodes_panel=self.left_panel.nodes_panel,
-            repository=node_repository,
+            repository=self.node_repo,
+            tag_repository=self.tag_repo,  # <--- Передаем tag_repo
             app=self
         )
         view.pack(fill=tk.BOTH, expand=True)
@@ -142,8 +152,22 @@ class MapEditorApp(tk.Frame):
 
     def show_block_editor(self):
         self.clear_editor_container()
-        view = BlockEditorView(self.editor_container, self, self.node_repo)
-        service = BlockEditorService(view=view, repository=self.block_repo, app=self)
+        node_schema = self.schema_repo.get_node_schema()
+
+        # --- ИСПРАВЛЕНИЕ ЗДЕСЬ ---
+        # BlockEditorView ТРЕБУЕТ node_schema в конструкторе. Мы должны его передать.
+        view = BlockEditorView(self.editor_container, self, node_schema)
+
+        # Убеждаемся, что и сервис получает все, что ему нужно
+        service = BlockEditorService(
+            view=view,
+            repository=self.block_repo,
+            node_repo=self.node_repo,
+            property_repo=self.property_repo,
+            node_schema=node_schema,
+            app=self
+        )
+
         view.pack(fill=tk.BOTH, expand=True)
         self.left_panel.show_panel("blocks")
         self.set_status_message("Режим: Редактор блоков")
@@ -161,7 +185,7 @@ class MapEditorApp(tk.Frame):
         self.set_cursor_to_brush()
         logging.info(f"Активный нод-кисточка установлен: {node_name}")
         if self.left_panel.nodes_panel and self.left_panel.nodes_panel.winfo_exists():
-            node_color = node_data.get('color', '#333333')
+            node_color = node_data.get('color', BG_PRIMARY)
             self.left_panel.nodes_panel.update_brush_indicator(node_color)
 
     def unselect_active_brush_node(self):
@@ -184,17 +208,14 @@ class MapEditorApp(tk.Frame):
     def open_palette(self, palette_type: str, x: int, y: int):
         if palette_type == "nodes":
             items_data = self.node_repo.get_all()
-            FloatingPaletteWindow(self, title="Палитра Нодов", app=self, items_data=items_data, x=x, y=y, palette_type="nodes")
+            FloatingPaletteWindow(self, title="Палитра Нодов", app=self, items_data=items_data, x=x, y=y,
+                                  palette_type="nodes")
         elif palette_type == "blocks":
-            items_data = self.block_repo.get_all()
-            FloatingPaletteWindow(self, title="Палитра Блоков", app=self,
-                                  items_data=items_data, x=x, y=y, palette_type="blocks")
-            self.set_status_message("Палитра блоков пока не реализована")
+            # ...
+            pass
         elif palette_type == "locations":
-            items_data = self.location_repo.get_all()
-            FloatingPaletteWindow(self, title="Палитра Локаций", app=self,
-                                  items_data=items_data, x=x, y=y, palette_type="locations")
-            self.set_status_message("Палитра локаций пока не реализована")
+            # ...
+            pass
 
-    def get_selected_node_key(self) -> str | None:
+    def get_selected_node_key(self) -> Optional[str]:
         return None
