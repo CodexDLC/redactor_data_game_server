@@ -1,0 +1,322 @@
+{
+    "wall_nord": {
+        "display_name": "Стена север 3 блока",
+        "nodes_structure": [
+            [
+                "wall_nord_0_0",
+                "wall_nord_0_1",
+                "wall_nord_0_2"
+            ],
+            [
+                "wall_nord_1_0",
+                "wall_nord_1_1",
+                "wall_nord_1_2"
+            ],
+            [
+                "wall_nord_2_0",
+                "wall_nord_2_1",
+                "wall_nord_2_2"
+            ]
+        ],
+        "nodes_data": {
+            "wall_nord_0_0": {
+                "template_key": "wall",
+                "properties": {
+                    "exits": {
+                        "north": null,
+                        "north_east": null,
+                        "east": "wall_nord_0_1",
+                        "south_east": "wall_nord_1_1",
+                        "south": "wall_nord_1_0",
+                        "south_west": null,
+                        "west": null,
+                        "north_west": null
+                    }
+                }
+            },
+            "wall_nord_0_1": {
+                "template_key": "wall",
+                "properties": {
+                    "exits": {
+                        "north": null,
+                        "north_east": null,
+                        "east": "wall_nord_0_2",
+                        "south_east": "wall_nord_1_2",
+                        "south": "wall_nord_1_1",
+                        "south_west": "wall_nord_1_0",
+                        "west": "wall_nord_0_0",
+                        "north_west": null
+                    }
+                }
+            },
+            "wall_nord_0_2": {
+                "template_key": "wall",
+                "properties": {
+                    "exits": {
+                        "north": null,
+                        "north_east": null,
+                        "east": null,
+                        "south_east": null,
+                        "south": "wall_nord_1_2",
+                        "south_west": "wall_nord_1_1",
+                        "west": "wall_nord_0_1",
+                        "north_west": null
+                    }
+                }
+            },
+            "wall_nord_1_0": {
+                "template_key": "flor",
+                "properties": {
+                    "exits": {
+                        "north": "wall_nord_0_0",
+                        "north_east": "wall_nord_0_1",
+                        "east": "wall_nord_1_1",
+                        "south_east": "wall_nord_2_1",
+                        "south": "wall_nord_2_0",
+                        "south_west": null,
+                        "west": null,
+                        "north_west": null
+                    }
+                }
+            },
+            "wall_nord_1_1": {
+                "template_key": "flor",
+                "properties": {
+                    "exits": {
+                        "north": "wall_nord_0_1",
+                        "north_east": "wall_nord_0_2",
+                        "east": "wall_nord_1_2",
+                        "south_east": "wall_nord_2_2",
+                        "south": "wall_nord_2_1",
+                        "south_west": "wall_nord_2_0",
+                        "west": "wall_nord_1_0",
+                        "north_west": "wall_nord_0_0"
+                    }
+                }
+            },
+            "wall_nord_1_2": {
+                "template_key": "flor",
+                "properties": {
+                    "exits": {
+                        "north": "wall_nord_0_2",
+                        "north_east": null,
+                        "east": null,
+                        "south_east": null,
+                        "south": "wall_nord_2_2",
+                        "south_west": "wall_nord_2_1",
+                        "west": "wall_nord_1_1",
+                        "north_west": "wall_nord_0_1"
+                    }
+                }
+            },
+            "wall_nord_2_2": {
+                "template_key": "flor",
+                "properties": {
+                    "exits": {
+                        "north": "wall_nord_1_2",
+                        "north_east": null,
+                        "east": null,
+                        "south_east": null,
+                        "south": null,
+                        "south_west": null,
+                        "west": "wall_nord_2_1",
+                        "north_west": "wall_nord_1_1"
+                    }
+                }
+            },
+            "wall_nord_2_1": {
+                "template_key": "flor",
+                "properties": {
+                    "exits": {
+                        "north": "wall_nord_1_1",
+                        "north_east": "wall_nord_1_2",
+                        "east": "wall_nord_2_2",
+                        "south_east": null,
+                        "south": null,
+                        "south_west": null,
+                        "west": "wall_nord_2_0",
+                        "north_west": "wall_nord_1_0"
+                    }
+                }
+            },
+            "wall_nord_2_0": {
+                "template_key": "flor",
+                "properties": {
+                    "exits": {
+                        "north": "wall_nord_1_0",
+                        "north_east": "wall_nord_1_1",
+                        "east": "wall_nord_2_1",
+                        "south_east": null,
+                        "south": null,
+                        "south_west": null,
+                        "west": null,
+                        "north_west": null
+                    }
+                }
+            }
+        }
+    },
+    "flor": {
+        "display_name": "Пол 3х3",
+        "nodes_structure": [
+            [
+                "new_block_key_0_0",
+                "new_block_key_0_1",
+                "new_block_key_0_2"
+            ],
+            [
+                "new_block_key_1_0",
+                "new_block_key_1_1",
+                "new_block_key_1_2"
+            ],
+            [
+                "new_block_key_2_0",
+                "new_block_key_2_1",
+                "new_block_key_2_2"
+            ]
+        ],
+        "nodes_data": {
+            "new_block_key_0_0": {
+                "template_key": "flor",
+                "properties": {
+                    "can_have_movement_time": {
+                        "movement_time": "1.0, 1.0"
+                    },
+                    "exits": {
+                        "north": null,
+                        "north_east": null,
+                        "east": "new_block_key_0_1",
+                        "south_east": "new_block_key_1_1",
+                        "south": "new_block_key_1_0",
+                        "south_west": null,
+                        "west": null,
+                        "north_west": null
+                    }
+                }
+            },
+            "new_block_key_0_1": {
+                "template_key": "flor",
+                "properties": {
+                    "exits": {
+                        "north": null,
+                        "north_east": null,
+                        "east": "new_block_key_0_2",
+                        "south_east": "new_block_key_1_2",
+                        "south": "new_block_key_1_1",
+                        "south_west": "new_block_key_1_0",
+                        "west": "new_block_key_0_0",
+                        "north_west": null
+                    }
+                }
+            },
+            "new_block_key_0_2": {
+                "template_key": "flor",
+                "properties": {
+                    "exits": {
+                        "north": null,
+                        "north_east": null,
+                        "east": null,
+                        "south_east": null,
+                        "south": "new_block_key_1_2",
+                        "south_west": "new_block_key_1_1",
+                        "west": "new_block_key_0_1",
+                        "north_west": null
+                    }
+                }
+            },
+            "new_block_key_1_2": {
+                "template_key": "flor",
+                "properties": {
+                    "exits": {
+                        "north": "new_block_key_0_2",
+                        "north_east": null,
+                        "east": null,
+                        "south_east": null,
+                        "south": "new_block_key_2_2",
+                        "south_west": "new_block_key_2_1",
+                        "west": "new_block_key_1_1",
+                        "north_west": "new_block_key_0_1"
+                    }
+                }
+            },
+            "new_block_key_1_1": {
+                "template_key": "flor",
+                "properties": {
+                    "exits": {
+                        "north": "new_block_key_0_1",
+                        "north_east": "new_block_key_0_2",
+                        "east": "new_block_key_1_2",
+                        "south_east": "new_block_key_2_2",
+                        "south": "new_block_key_2_1",
+                        "south_west": "new_block_key_2_0",
+                        "west": "new_block_key_1_0",
+                        "north_west": "new_block_key_0_0"
+                    }
+                }
+            },
+            "new_block_key_1_0": {
+                "template_key": "flor",
+                "properties": {
+                    "can_have_movement_time": {
+                        "movement_time": "1.0, 1.0"
+                    },
+                    "exits": {
+                        "north": "new_block_key_0_0",
+                        "north_east": "new_block_key_0_1",
+                        "east": "new_block_key_1_1",
+                        "south_east": "new_block_key_2_1",
+                        "south": "new_block_key_2_0",
+                        "south_west": null,
+                        "west": null,
+                        "north_west": null
+                    }
+                }
+            },
+            "new_block_key_2_0": {
+                "template_key": "flor",
+                "properties": {
+                    "exits": {
+                        "north": "new_block_key_1_0",
+                        "north_east": "new_block_key_1_1",
+                        "east": "new_block_key_2_1",
+                        "south_east": null,
+                        "south": null,
+                        "south_west": null,
+                        "west": null,
+                        "north_west": null
+                    }
+                }
+            },
+            "new_block_key_2_1": {
+                "template_key": "flor",
+                "properties": {
+                    "exits": {
+                        "north": "new_block_key_1_1",
+                        "north_east": "new_block_key_1_2",
+                        "east": "new_block_key_2_2",
+                        "south_east": null,
+                        "south": null,
+                        "south_west": null,
+                        "west": "new_block_key_2_0",
+                        "north_west": "new_block_key_1_0"
+                    }
+                }
+            },
+            "new_block_key_2_2": {
+                "template_key": "flor",
+                "properties": {
+                    "exits": {
+                        "north": "new_block_key_1_2",
+                        "north_east": null,
+                        "east": null,
+                        "south_east": null,
+                        "south": null,
+                        "south_west": null,
+                        "west": "new_block_key_2_1",
+                        "north_west": "new_block_key_1_1"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -6,8 +6,35 @@
         "type": "SOLID",
         "properties": {
             "is_vision_blocker": true,
+            "is_block_connector": false,
             "is_solid_trigger": false,
             "can_be_solid_secret": false
+        }
+    },
+    "flor": {
+        "display_name": "Простой пол",
+        "tag": "flor",
+        "color": "#ebffe8",
+        "type": "WALKABLE",
+        "properties": {
+            "is_vision_blocker": false,
+            "is_block_connector": false,
+            "can_have_movement_time": true,
+            "is_dangerous": false,
+            "is_walkable_trigger": false,
+            "can_be_walkable_secret": false
+        }
+    },
+    "test": {
+        "display_name": "Новая Нода",
+        "tag": "test",
+        "color": "#004080",
+        "type": "SOLID",
+        "properties": {
+            "is_vision_blocker": true,
+            "is_block_connector": true,
+            "is_solid_trigger": true,
+            "can_be_solid_secret": true
         }
     }
 }

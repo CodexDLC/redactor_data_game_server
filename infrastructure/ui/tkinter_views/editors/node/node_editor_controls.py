@@ -71,8 +71,10 @@ class NodeEditorControls(BaseEditorControls):
 
         common_props = self.schema.get("common_properties", {})
         for key, prop_info in common_props.items():
-            frame, (var, widget) = create_widget_for_property(self.context_props_frame, key, prop_info)
-            frame.pack(fill=tk.X, pady=2, anchor="w")
+            # ИЗМЕНЕНО: Правильная распаковка трех значений: variable, label, widget
+            var, label, widget = create_widget_for_property(self.context_props_frame, key, prop_info)
+            label.pack(fill=tk.X, pady=(5, 0), anchor="w") # <-- ДОБАВЛЕНО: Упаковка метки
+            widget.pack(fill=tk.X, pady=(0, 5), padx=5) # <-- ДОБАВЛЕНО: Упаковка виджета
             self._property_widgets[key] = (var, widget)
 
         selected_rus_type = self.type_combobox.get()
@@ -80,8 +82,10 @@ class NodeEditorControls(BaseEditorControls):
         if selected_eng_type:
             specific_props = self.schema.get("type_specific_properties", {}).get(selected_eng_type, {})
             for key, prop_info in specific_props.items():
-                frame, (var, widget) = create_widget_for_property(self.context_props_frame, key, prop_info)
-                frame.pack(fill=tk.X, pady=2, anchor="w")
+                # ИЗМЕНЕНО: Правильная распаковка трех значений: variable, label, widget
+                var, label, widget = create_widget_for_property(self.context_props_frame, key, prop_info)
+                label.pack(fill=tk.X, pady=(5, 0), anchor="w") # <-- ДОБАВЛЕНО: Упаковка метки
+                widget.pack(fill=tk.X, pady=(0, 5), padx=5) # <-- ДОБАВЛЕНО: Упаковка виджета
                 self._property_widgets[key] = (var, widget)
 
     def _select_color(self):

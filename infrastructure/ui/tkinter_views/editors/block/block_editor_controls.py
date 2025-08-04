@@ -1,202 +1,232 @@
 # File: infrastructure/ui/tkinter_views/editors/block/block_editor_controls.py
 import tkinter as tk
 from tkinter import ttk
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Tuple
 
 from ...base_editor_controls import BaseEditorControls
 from ...styles import *
-from ...widgets.code_preview_window import CodePreviewWindow
 from ...widgets.context_menu import add_editing_menu
+from ...widgets.exits_editor import ExitsEditorWidget
 from ...widgets.widget_factory import create_widget_for_property
+from ...widgets.node_selector_widget import NodeSelectorWidget
 
 
 class BlockEditorControls(BaseEditorControls):
     """
-    Новая панель управления для редактора блоков с трехзонной компоновкой:
-    1. Свойства всего блока.
-    2. Выбор нода для редактирования.
-    3. Свойства выбранного нода (во вкладках).
+    Класс-контейнер, который собирает и управляет кастомными виджетами
+    для редактирования свойств блока.
     """
 
     def __init__(self, master, parent_view: Any):
-        super().__init__(master, parent_view)
+        # ИЗМЕНЕНО: Инициализируем атрибуты ПЕРЕД вызовом super()
         self.current_block_data = {}
-        self.selected_node_id = tk.StringVar()
-        self._property_widgets: Dict[str, Any] = {}
+        self.selected_node_id = None
+        self.current_node_properties_data: Dict[str, Any] = {}
+        self._active_widgets: Dict[str, Any] = {}
+        self.basic_properties_listbox = None
+        self.feature_properties_listbox = None
+        self.basic_prop_map = {}
+        self.feature_prop_map = {}
+        self.node_selector = None
+        self.active_property_editor = None
 
-    # ---------------------------------------------------------------------
-    # --- UI Building ---
-    # ---------------------------------------------------------------------
+        super().__init__(master, parent_view)
 
     def _build_ui(self):
-        """Строит новую трехзонную компоновку панели."""
-        # --- Зона 1: Свойства Блока ---
+        """Строит компоновку из зон, включая наши новые виджеты."""
         self._build_block_properties_zone()
 
-        # --- Зона 2: Выбор Нода ---
-        self._build_node_selection_zone()
+        self.node_selector = NodeSelectorWidget(self, on_selection_changed=self._on_node_selected)
+        self.node_selector.pack(fill=tk.X, padx=5, pady=5, side=tk.TOP)
 
-        # --- Зона 3: Свойства Выбранного Нода ---
         self._build_node_properties_zone()
-
-        # --- Зона 4: Действия (из базового класса) ---
         super()._build_ui()
 
+        # ДОБАВЛЕНО: Обновляем данные после того, как виджеты созданы
+        self.set_block_data(self.current_block_data)
+
     def _build_block_properties_zone(self):
-        """Создает UI для редактирования свойств всего блока."""
         frame = tk.LabelFrame(self, text="Свойства блока", fg=FG_TEXT, bg=BG_PRIMARY, padx=5, pady=5)
         frame.pack(fill=tk.X, padx=5, pady=5, side=tk.TOP)
-
         tk.Label(frame, text="Ключ блока (block_key):", fg=FG_TEXT, bg=BG_PRIMARY).pack(anchor="w")
         self.entry_block_key = tk.Entry(frame, bg=BG_SECONDARY, fg=FG_TEXT, insertbackground=FG_TEXT)
         self.entry_block_key.pack(fill=tk.X, pady=(0, 5))
         add_editing_menu(self.entry_block_key)
-
         tk.Label(frame, text="Имя для UI:", fg=FG_TEXT, bg=BG_PRIMARY).pack(anchor="w")
         self.entry_display_name = tk.Entry(frame, bg=BG_SECONDARY, fg=FG_TEXT, insertbackground=FG_TEXT)
         self.entry_display_name.pack(fill=tk.X, pady=(0, 5))
         add_editing_menu(self.entry_display_name)
 
-        # TODO: Добавить поле для тегов блока
-        # tk.Label(frame, text="Теги блока (через запятую):", fg=FG_TEXT, bg=BG_PRIMARY).pack(anchor="w")
-        # self.entry_block_tags = tk.Entry(frame, bg=BG_SECONDARY, fg=FG_TEXT)
-        # self.entry_block_tags.pack(fill=tk.X, pady=(0, 5))
-
-    def _build_node_selection_zone(self):
-        """Создает UI для выбора нода, который нужно редактировать."""
-        frame = tk.LabelFrame(self, text="Выбор нода для редактирования", fg=FG_TEXT, bg=BG_PRIMARY, padx=5, pady=5)
-        frame.pack(fill=tk.X, padx=5, pady=5, side=tk.TOP)
-
-        self.node_selector_combo = ttk.Combobox(frame, textvariable=self.selected_node_id, state="readonly")
-        self.node_selector_combo.pack(fill=tk.X)
-        self.node_selector_combo.bind("<<ComboboxSelected>>", self._on_node_selected_from_combo)
-
     def _build_node_properties_zone(self):
-        """Создает контейнер для вкладок со свойствами выбранного нода."""
         self.props_frame_container = tk.LabelFrame(self, text="Свойства нода", fg=FG_TEXT, bg=BG_PRIMARY, padx=5,
                                                    pady=5)
         self.props_frame_container.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        style = ttk.Style()
-        style.configure("TNotebook.Tab", background=BG_SECONDARY, foreground=FG_TEXT)
-        style.map("TNotebook.Tab", background=[("selected", BG_HIGHLIGHT)])
+        basic_props_frame = tk.LabelFrame(self.props_frame_container, text="Базовые свойства", fg=FG_TEXT,
+                                          bg=BG_PRIMARY)
+        basic_props_frame.pack(fill=tk.X, pady=(0, 5))
+        self.basic_properties_listbox = tk.Listbox(basic_props_frame, bg=BG_SECONDARY, fg=FG_TEXT, height=3)
+        self.basic_properties_listbox.pack(fill=tk.X)
+        self.basic_properties_listbox.bind("<<ListboxSelect>>", self._on_property_selected_from_list)
 
-        self.props_notebook = ttk.Notebook(self.props_frame_container, style="TNotebook")
-        self.props_notebook.pack(fill=tk.BOTH, expand=True)
+        feature_props_frame = tk.LabelFrame(self.props_frame_container, text="Особые свойства", fg=FG_TEXT,
+                                            bg=BG_PRIMARY)
+        feature_props_frame.pack(fill=tk.X, pady=(0, 5))
+        self.feature_properties_listbox = tk.Listbox(feature_props_frame, bg=BG_SECONDARY, fg=FG_TEXT, height=3)
+        self.feature_properties_listbox.pack(fill=tk.X)
+        self.feature_properties_listbox.bind("<<ListboxSelect>>", self._on_property_selected_from_list)
 
-    # ---------------------------------------------------------------------
-    # --- Data Handling & UI Updates ---
-    # ---------------------------------------------------------------------
+        self.property_editor_frame = tk.Frame(self.props_frame_container, bg=BG_PRIMARY)
+        self.property_editor_frame.pack(fill=tk.BOTH, expand=True)
+
+    def get_properties_data(self) -> Dict[str, Any]:
+        """
+        ИЗМЕНЕНО: Собирает данные из текущего активного виджета-редактора.
+        """
+        updated_data = {}
+        if isinstance(self.active_property_editor, ExitsEditorWidget):
+            updated_data['exits'] = self.active_property_editor.get_exits_data()
+        else:
+            # Для динамически созданных виджетов собираем данные из переменных
+            for key, (variable, _, _) in self._active_widgets.items():
+                if hasattr(variable, 'get'):
+                    updated_data[key] = variable.get()
+        return updated_data
 
     def set_block_data(self, block_data: Dict[str, Any]):
-        """
-        Основной метод для обновления всей панели.
-        Заполняет свойства блока и список выбора нодов.
-        """
         self.current_block_data = block_data
-
-        # 1. Заполняем свойства блока
         self.entry_block_key.delete(0, tk.END)
         self.entry_block_key.insert(0, block_data.get('block_key', ''))
         self.entry_display_name.delete(0, tk.END)
         self.entry_display_name.insert(0, block_data.get('display_name', ''))
 
-        # 2. Обновляем выпадающий список нодов
         nodes_data = block_data.get('nodes_data', {})
-        # Формируем красивые имена для списка: "[x,y] - template_key"
-        node_list = []
+        node_list_for_selector = []
         nodes_structure = block_data.get('nodes_structure', [])
         for r, row in enumerate(nodes_structure):
             for c, node_id in enumerate(row):
                 if node_id and node_id in nodes_data:
                     template_key = nodes_data[node_id].get('template_key', 'N/A')
-                    node_list.append(f"[{r},{c}] {template_key} ({node_id})")
+                    node_list_for_selector.append(f"[{r},{c}] {template_key} ({node_id})")
 
-        self.node_selector_combo['values'] = node_list
-        self._clear_node_properties_tabs()
+        print(f"Формируемый список нодов для селектора: {node_list_for_selector}")
 
-    def _on_node_selected_from_combo(self, event=None):
-        """Срабатывает при выборе нода из выпадающего списка."""
-        selection = self.selected_node_id.get()
-        # Извлекаем ID нода из строки, например " (new_block_key_0_0)" -> "new_block_key_0_0"
-        node_id = selection.split('(')[-1][:-1]
+        if self.node_selector:
+            self.node_selector.update_list(node_list_for_selector)
 
-        # Запрашиваем у View (который спросит у Service) данные для этого нода
+        self._clear_properties_list_and_editor()
+
+    def _on_node_selected(self, node_id: str):
+        self.selected_node_id = node_id
         self.parent_view.request_properties_for_node(node_id)
 
-    def display_node_properties(self, properties_data: Dict[str, Any]):
-        """Отображает полученные от сервиса свойства нода во вкладках."""
-        self._clear_node_properties_tabs()
-        self._property_widgets.clear()
+    def display_available_properties(self, properties_data: Dict[str, Any]):
+        self._clear_properties_list_and_editor()
+        self.current_node_properties_data = properties_data
 
-        # --- Вкладка 1: Основные (всегда есть) ---
-        basic_tab = ttk.Frame(self.props_notebook)
-        self.props_notebook.add(basic_tab, text="Основные")
+        self.basic_prop_map = {}
+        self.feature_prop_map = {}
 
-        # Виджеты для базовых свойств (например, material_type, movement_time)
-        if "basic_properties" in properties_data:
-            self._property_widgets["basic_properties"] = {}
-            for key, info in properties_data["basic_properties"].items():
-                value = info.get("value")
-                schema = info.get("schema")
-                if not schema: continue
+        # ДОБАВЛЕНО: Проверяем, что listbox'ы существуют
+        if self.basic_properties_listbox:
+            if 'basic_properties' in properties_data:
+                for prop_key, prop_details in properties_data['basic_properties'].items():
+                    if isinstance(prop_details, dict) and 'label' in prop_details:
+                        label = prop_details['label']
+                        self.basic_properties_listbox.insert(tk.END, label)
+                        self.basic_prop_map[label] = prop_key
 
-                frame, (var, widget) = create_widget_for_property(basic_tab, key, schema)
-                var.set(value)
-                frame.pack(fill=tk.X, pady=2, anchor="w", padx=2)
-                self._property_widgets["basic_properties"][key] = (var, widget)
+        if self.feature_properties_listbox:
+            if 'feature_properties' in properties_data:
+                for prop_key, prop_details in properties_data['feature_properties'].items():
+                    if isinstance(prop_details, dict) and 'label' in prop_details:
+                        label = prop_details['label']
+                        self.feature_properties_listbox.insert(tk.END, label)
+                        self.feature_prop_map[label] = prop_key
 
-        # --- Вкладки 2, 3...: Динамические (Триггер, Секрет...) ---
-        if "feature_properties" in properties_data:
-            for feature_name, feature_info in properties_data["feature_properties"].items():
-                feature_tab = ttk.Frame(self.props_notebook)
-                self.props_notebook.add(feature_tab, text=feature_info.get("label", feature_name))
+    def _on_property_selected_from_list(self, event=None):
+        selected_listbox = None
+        prop_key = None
+        prop_details = None
 
-                # --- НАЧАЛО ИСПРАВЛЕННОГО КОДА ---
-                prop_values = feature_info.get("values", {})
-                param_details_schema = self.parent_view.app.property_repo.get_by_key(feature_name)
-                if not param_details_schema: continue
+        if self.basic_properties_listbox.curselection():
+            selected_listbox = self.basic_properties_listbox
+            prop_map = self.basic_prop_map
+            prop_group = self.current_node_properties_data.get('basic_properties', {})
+        elif self.feature_properties_listbox.curselection():
+            selected_listbox = self.feature_properties_listbox
+            prop_map = self.feature_prop_map
+            prop_group = self.current_node_properties_data.get('feature_properties', {})
+        else:
+            return
 
-                # Сохраняем виджеты под ключом фичи (например, "is_solid_trigger")
-                self._property_widgets[feature_name] = {}
+        selection_indices = selected_listbox.curselection()
+        if not selection_indices: return
 
-                for param_key, param_info in param_details_schema.items():
-                    frame, (var, widget) = create_widget_for_property(feature_tab, param_key, param_info)
-                    frame.pack(fill=tk.X, pady=2, anchor="w", padx=2)
-                    if param_key in prop_values:
-                        var.set(prop_values[param_key])
-                    self._property_widgets[feature_name][param_key] = (var, widget)
-                # --- КОНЕЦ ИСПРАВЛЕННОГО КОДА ---
+        selected_label = selected_listbox.get(selection_indices[0])
+        prop_key = prop_map.get(selected_label)
+        prop_details = prop_group.get(prop_key)
 
-    def _clear_node_properties_tabs(self):
-        """Очищает все вкладки в Notebook."""
-        for i in reversed(range(self.props_notebook.index("end"))):
-            self.props_notebook.forget(i)
+        if prop_key == 'exits':
+            self.parent_view.request_editor_for_property(self.selected_node_id, prop_key)
+        else:
+            if prop_details:
+                # ИЗМЕНЕНО: теперь мы динамически создаём виджет
+                self._display_property_editor(prop_key, prop_details)
 
-        # File: infrastructure/ui/tkinter_views/editors/block/block_editor_controls.py
+    def _display_property_editor(self, prop_key: str, prop_details: Dict[str, Any]):
+        self._clear_property_editor()
+        self._active_widgets = {}
 
-        def get_properties_data(self) -> Dict[str, Any]:
-            """Собирает текущие значения из всех виджетов со всех вкладок."""
-            # Этот словарь будет содержать итоговые свойства для одного нода
-            # Например: {'material_type': 'stone', 'is_solid_trigger': {'event_id': 'evt1', ...}}
-            collected_properties = {}
+        # Если это простой тип, используем widget_factory
+        if 'values' in prop_details and isinstance(prop_details['values'], dict):
+            # Если это сложный тип (как триггер с несколькими полями)
+            for param_key, param_info in prop_details['values'].items():
+                variable, label, widget = create_widget_for_property(self.property_editor_frame, param_key, param_info)
+                label.pack(anchor="w", padx=5, pady=(5, 0))
+                widget.pack(fill=tk.X, padx=5, pady=(0, 5))
+                self._active_widgets[param_key] = (variable, label, widget)
 
-            # 1. Собираем данные с вкладки "Основные"
-            if "basic_properties" in self._property_widgets:
-                for key, (var, widget) in self._property_widgets["basic_properties"].items():
-                    collected_properties[key] = var.get()
+                # Устанавливаем значение
+                if param_key in prop_details['values'] and hasattr(variable, 'set'):
+                    value_to_set = prop_details['values'][param_key]
+                    if isinstance(value_to_set, list):  # Для типа 'range'
+                        variable.set(f"{value_to_set[0]},{value_to_set[1]}")
+                    else:
+                        variable.set(value_to_set)
 
-            # 2. Собираем данные с динамических вкладок (Триггер, Секрет и т.д.)
-            for feature_name, widget_group in self._property_widgets.items():
-                if feature_name == "basic_properties":
-                    continue  # Эту вкладку уже обработали
+        else:  # Для простых boolean или string
+            # Это может быть более сложная логика, пока заглушка
+            label = tk.Label(self.property_editor_frame, text=f"Редактор для {prop_key}", fg=FG_TEXT, bg=BG_PRIMARY)
+            label.pack()
 
-                # Для каждой фичи (например, 'is_solid_trigger') создаем свой вложенный словарь
-                feature_values = {}
-                for sub_key, (var, widget) in widget_group.items():
-                    feature_values[sub_key] = var.get()
+    def display_property_editor(self, prop_key: str, editor_data: Dict[str, Any]):
+        self._clear_property_editor()
+        if prop_key == 'exits':
+            self.active_property_editor = ExitsEditorWidget(
+                self.property_editor_frame,
+                on_update_request=lambda: self.parent_view.request_properties_for_node(self.selected_node_id)
+            )
+            self.active_property_editor.pack()
+            self.active_property_editor.update_visuals(
+                exits_data=editor_data.get('exits', {}),
+                is_connector=editor_data.get('is_connector', False)
+            )
 
-                # Добавляем в итоговый словарь
-                collected_properties[feature_name] = feature_values
+    def _clear_properties_list_and_editor(self):
+        if self.basic_properties_listbox:
+            self.basic_properties_listbox.delete(0, tk.END)
+        if self.feature_properties_listbox:
+            self.feature_properties_listbox.delete(0, tk.END)
+        self._clear_property_editor()
 
-            return collected_properties
+    def _clear_property_editor(self):
+        if self.active_property_editor:
+            self.active_property_editor.destroy()
+            self.active_property_editor = None
+
+        # ДОБАВЛЕНО: Очищаем динамически созданные виджеты
+        for _, (variable, label, widget) in self._active_widgets.items():
+            label.destroy()
+            widget.destroy()
+        self._active_widgets = {}

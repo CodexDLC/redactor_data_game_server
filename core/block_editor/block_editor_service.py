@@ -29,25 +29,37 @@ class BlockEditorService:
         self.view.bind_request_node_properties(self.on_request_node_properties)
 
     def save_block(self) -> None:
-        data = self.view.get_form_data()
-        block_key = data.get('block_key')
+        """Собирает данные, обогащает их выходами (exits) и сохраняет."""
+        data_from_ui = self.view.get_form_data()
+        block_key = data_from_ui.get('block_key')
+
         if not block_key:
             self.app.set_status_message("Ошибка: Имя блока не может быть пустым.", is_error=True)
             return
 
-        nodes_structure = data.get('nodes_structure', [])
+        nodes_structure = data_from_ui.get('nodes_structure', [])
+        nodes_data = data_from_ui.get('nodes_data', {})
+
+        # --- НАЧАЛО ИСПРАВЛЕННОЙ ЛОГИКИ ---
+        # 1. Сначала рассчитываем актуальные выходы для ВСЕХ нодов
         all_exits = self.exits_calculator.calculate_all_exits(nodes_structure)
 
-        nodes_data = data.get('nodes_data', {})
-        for node_id, exits_data in all_exits.items():
-            if node_id in nodes_data:
-                if 'properties' not in nodes_data[node_id]:
-                    nodes_data[node_id]['properties'] = {}
-                nodes_data[node_id]['properties']['exits'] = exits_data
+        # 2. Теперь проходим по всем нодам и ОБЪЕДИНЯЕМ их свойства
+        for node_id, node_details in nodes_data.items():
+            # Получаем свойства, которые пришли из UI (могли быть изменены)
+            ui_properties = node_details.get('properties', {})
+
+            # Получаем рассчитанные выходы для этого нода
+            calculated_exits = all_exits.get(node_id, {})
+
+            # Объединяем их: сохраняем и выходы, и измененные в UI свойства
+            ui_properties['exits'] = calculated_exits
+            node_details['properties'] = ui_properties
+        # --- КОНЕЦ ИСПРАВЛЕННОЙ ЛОГИКИ ---
 
         transformed_nodes_data = self._transform_data_for_saving(nodes_data)
         block_data_to_save = {
-            'display_name': data.get('display_name', block_key),
+            'display_name': data_from_ui.get('display_name', block_key),
             'nodes_structure': nodes_structure,
             'nodes_data': transformed_nodes_data
         }
@@ -62,47 +74,50 @@ class BlockEditorService:
         self.view.display_node_properties(properties_for_view)
 
     def _prepare_node_properties_for_view(self, node_id: str, block_data: dict) -> dict:
+        """
+        Готовит данные для отображения в панели свойств со вкладками.
+        """
         instance_data = block_data.get('nodes_data', {}).get(node_id, {})
-        template_key = instance_data.get('template_key')
+        template_key = instance_data.get('template_key') or instance_data.get('node_key')
         if not template_key: return {}
 
         template_data = self.node_repo.get_by_key(template_key)
         if not template_data: return {}
 
-        properties_for_ui = {"basic_properties": {}, "feature_properties": {}}
+        properties_for_ui = {
+            "basic_properties": {},
+            "feature_properties": {}
+        }
+
         instance_properties = instance_data.get("properties", {})
+        template_properties = template_data.get("properties", {})
 
         # --- 1. Заполняем "Основные" свойства ---
-        # Exits - они уже должны быть в instance_properties после расчета
-        if 'exits' in instance_properties:
-            properties_for_ui["basic_properties"]["exits"] = {
-                "schema": {"label": "Переходы (Exits)", "type": "exits_editor"},
-                "value": instance_properties['exits']
-            }
-
-        # Material Type (пример)
-        # TODO: Заменить на реальную логику получения списка материалов
-        material_schema = self.node_schema["common_properties"].get("material_type")
-        if material_schema:
-            properties_for_ui["basic_properties"]["material_type"] = {
-                "schema": material_schema,
-                "value": instance_properties.get("material_type", "")
-            }
+        # (Когда мы их добавим, логика будет здесь)
+        # TODO: Добавить логику для material_type, movement_time, exits
 
         # --- 2. Заполняем "Фичи" (Триггеры, Секреты и т.д.) ---
-        template_properties = template_data.get("properties", {})
         for prop_key, template_value in template_properties.items():
             if template_value is True:
                 prop_schema = self._find_property_in_schema(prop_key)
                 if not prop_schema: continue
 
+                # --- НАЧАЛО ИСПРАВЛЕННОЙ ЛОГИКИ ---
+                instance_value = instance_properties.get(prop_key)
+
+                # Если у экземпляра уже есть сохраненные детальные настройки (в виде словаря), используем их.
+                # В противном случае (если их нет, или там старое значение 'true'),
+                # мы принудительно создаем их из значений по умолчанию.
+                if isinstance(instance_value, dict):
+                    values = instance_value
+                else:
+                    values = self._get_default_params_for_property(prop_key)
+                # --- КОНЕЦ ИСПРАВЛЕННОЙ ЛОГИКИ ---
+
                 feature_data = {
                     "label": prop_schema.get("label", prop_key),
-                    "values": instance_properties.get(prop_key, {})
+                    "values": values
                 }
-
-                if not isinstance(feature_data["values"], dict):
-                    feature_data["values"] = self._get_default_params_for_property(prop_key)
 
                 properties_for_ui["feature_properties"][prop_key] = feature_data
 

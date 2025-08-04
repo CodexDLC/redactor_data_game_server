@@ -79,18 +79,19 @@ class BlockEditorView(BaseEditorView, IBlockEditorView):
         self._block_data['display_name'] = self.controls.entry_display_name.get()
 
         # 2. Получаем ID выбранного нода
-        selected_node_id = self.controls.selected_node_id.get()
+        selected_node_id = self.controls.selected_node_id
         if not selected_node_id:
             return self._block_data
 
-        clean_node_id = selected_node_id.split('(')[-1][:-1]
-
         # 3. Получаем обновленные свойства для этого нода
-        updated_properties = self.controls.get_properties_data()
+        updated_properties = self.controls.get_properties_data() # <-- ИЗМЕНЕНО: теперь вызываем новый метод
 
         # 4. Обновляем данные только для выбранного нода
-        if clean_node_id in self._block_data['nodes_data']:
-            self._block_data['nodes_data'][clean_node_id]['properties'] = updated_properties
+        if selected_node_id in self._block_data['nodes_data']:
+            # Объединяем старые свойства с новыми
+            current_properties = self._block_data['nodes_data'][selected_node_id].get('properties', {})
+            current_properties.update(updated_properties)
+            self._block_data['nodes_data'][selected_node_id]['properties'] = current_properties
 
         return self._block_data
 
@@ -147,9 +148,9 @@ class BlockEditorView(BaseEditorView, IBlockEditorView):
     # --- Новые и обновленные методы-посредники ---
 
     def display_node_properties(self, properties_data: Dict[str, Any]):
-        """Просто передает готовые данные о свойствах в Controls для отображения."""
         if self.controls:
-            self.controls.display_node_properties(properties_data)
+            print(f"Данные о свойствах, передаваемые в Controls: {properties_data}")
+            self.controls.display_available_properties(properties_data)
 
     def bind_request_node_properties(self, command: Callable[[str], None]) -> None:
         """
