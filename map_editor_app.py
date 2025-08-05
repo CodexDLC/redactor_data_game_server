@@ -10,7 +10,7 @@ from infrastructure.persistence.json_block_repository import JsonBlockRepository
 from infrastructure.persistence.json_location_repository import JsonLocationRepository
 from infrastructure.persistence.json_schema_repository import JsonSchemaRepository
 from infrastructure.persistence.json_property_repository import JsonPropertyRepository
-from infrastructure.persistence.json_tag_repository import JsonTagRepository  # <--- ИСПРАВЛЕНИЕ ЗДЕСЬ
+from infrastructure.persistence.json_tag_repository import JsonTagRepository
 
 from infrastructure.ui.tkinter_views.left_panel.universal import UniversalLeftPanel
 from infrastructure.ui.tkinter_views.editors.block.block_editor_view import BlockEditorView
@@ -41,10 +41,6 @@ class TextWidgetHandler(logging.Handler):
 
 
 class MapEditorApp(tk.Frame):
-    """
-    Класс редактора карты
-
-    """
     def __init__(self, master):
         super().__init__(master, bg=BG_PRIMARY)
 
@@ -52,6 +48,7 @@ class MapEditorApp(tk.Frame):
         self.logger = logging.getLogger()
         self.logger.setLevel(logging.INFO)
 
+        # --- ИСПРАВЛЕНИЕ: Инициализируем node_repo здесь ---
         self.node_repo = JsonNodeRepository()
         self.block_repo = JsonBlockRepository()
         self.location_repo = JsonLocationRepository()
@@ -70,7 +67,7 @@ class MapEditorApp(tk.Frame):
         main_content_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         self.left_panel = UniversalLeftPanel(
-            master=main_content_frame, app=self, node_repo=self.node_repo,
+            master=main_content_frame, app=self,
             block_repo=self.block_repo, location_repo=self.location_repo,
             miniature_size=MINIATURE_SIZE, miniature_padding=MINIATURE_PADDING,
             font=DEFAULT_FONT, frame_width=FRAME_WIDTH
@@ -124,6 +121,7 @@ class MapEditorApp(tk.Frame):
         self.clear_editor_container()
         node_schema = self.schema_repo.get_node_schema()
         view = BlockEditorView(self.editor_container, self, node_schema)
+        # --- ИСПРАВЛЕНИЕ: Добавляем node_repo в конструктор сервиса ---
         service = BlockEditorService(view=view, repository=self.block_repo, node_repo=self.node_repo, app=self)
         view.pack(fill=tk.BOTH, expand=True)
         self.left_panel.show_panel("blocks")
@@ -155,6 +153,6 @@ class MapEditorApp(tk.Frame):
 
     def open_palette(self, palette_type: str, x: int, y: int):
         if palette_type == "nodes":
-            items_data = self.node_repo.get_all()
-            FloatingPaletteWindow(self, title="Палитра Кирпичиков", app=self, items_data=items_data, x=x, y=y)
+            nodes_data = self.node_repo.get_all()
+            FloatingPaletteWindow(self, title="Палитра Кирпичиков", app=self, items_data=nodes_data, x=x, y=y)
         # TODO: Добавить логику для других палитр
