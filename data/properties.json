@@ -1,0 +1,32 @@
+{
+    "can_have_movement_time": {
+        "movement_time": {
+            "label": "Время перемещения (min/max):",
+            "type": "range",
+            "default": [ 1.0, 1.0 ]
+        }
+    },
+    "is_walkable_trigger": {
+        "event_id": { "label": "ID события", "type": "string", "default": "" },
+        "trigger_type": { "label": "Тип триггера", "type": "dropdown", "options": ["OnEnter", "OnExit"] }
+    },
+    "is_solid_trigger": {
+        "event_id": { "label": "ID события", "type": "string", "default": "" },
+        "trigger_type": { "label": "Тип триггера", "type": "dropdown", "options": ["OnTouch", "OnInspect"] }
+    },
+    "is_dangerous": {
+        "damage_type": { "label": "Тип урона", "type": "dropdown", "options": ["Огонь", "Яд", "Электричество"] }
+    },
+    "is_vision_blocker": {
+        "block_strength": { "label": "Сила блокировки", "type": "string", "default": "100" },
+        "block_color": { "label": "Цвет блокировки", "type": "string", "default": "#000000" }
+    },
+    "can_be_walkable_secret": {
+        "secret_id": { "label": "ID секрета", "type": "string", "default": "" },
+        "discovery_chance": { "label": "Шанс обнаружения", "type": "string", "default": "0.5" }
+    },
+    "can_be_solid_secret": {
+        "secret_id": { "label": "ID секрета", "type": "string", "default": "" },
+        "discovery_roll": { "label": "Сложность проверки", "type": "string", "default": "15" }
+    }
+}

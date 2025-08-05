@@ -1,0 +1,17 @@
+{
+    "walkable": {
+        "display_name": "Проходимый",
+        "color": "#cccccc",
+        "type": "WALKABLE"
+    },
+    "solid": {
+        "display_name": "Непроходимый",
+        "color": "#654321",
+        "type": "SOLID"
+    },
+    "void": {
+        "display_name": "Пустота",
+        "color": "#483d8b",
+        "type": "VOID"
+    }
+}
