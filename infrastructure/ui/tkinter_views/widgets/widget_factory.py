@@ -7,32 +7,36 @@ from ..styles import *
 from .context_menu import add_editing_menu
 
 
-def create_widget_for_property(parent: tk.Widget, key: str, prop_info: Dict[str, Any]) -> Tuple[Any, tk.Label, tk.Widget]:
+def create_widget_for_property(parent: tk.Widget, key: str, prop_info: Dict[str, Any]) -> Tuple[tk.Widget, Any]:
     """
-    Создает метку и виджет на основе схемы свойства.
-    НЕ размещает их, только создает.
-    Возвращает кортеж из (переменная, метка, виджет).
+    Создает готовую рамку (Frame) с меткой и виджетом.
+    Возвращает кортеж из (рамка, (переменная, виджет)).
     """
     prop_type = prop_info.get("type", "string")
     label_text = prop_info.get("label", key.capitalize())
     options = prop_info.get("options", [])
 
-    label = tk.Label(parent, text=label_text, fg=FG_TEXT, bg=BG_PRIMARY)
+    # --- ИСПРАВЛЕНИЕ: Создаем рамку-контейнер ---
+    frame = tk.Frame(parent, bg=BG_PRIMARY)
+    label = tk.Label(frame, text=label_text, fg=FG_TEXT, bg=BG_PRIMARY, width=25, anchor="w") # Задаем ширину для выравнивания
+    label.pack(side=tk.LEFT, padx=(0, 5))
 
     if prop_type == 'boolean':
         variable = tk.BooleanVar()
-        widget = tk.Checkbutton(parent, variable=variable, bg=BG_PRIMARY, selectcolor=BG_SECONDARY,
+        widget = tk.Checkbutton(frame, variable=variable, bg=BG_PRIMARY, selectcolor=BG_SECONDARY,
                                 activebackground=BG_PRIMARY, highlightthickness=0)
-        return variable, label, widget
+        widget.pack(side=tk.LEFT)
+        return frame, (variable, widget)
 
     elif prop_type == 'dropdown':
         variable = tk.StringVar()
-        widget = ttk.Combobox(parent, textvariable=variable, values=options, state="readonly")
-        return variable, label, widget
+        widget = ttk.Combobox(frame, textvariable=variable, values=options, state="readonly")
+        widget.pack(side=tk.RIGHT, fill=tk.X, expand=True)
+        return frame, (variable, widget)
 
-    # string, range, number и т.д.
-    else:
+    else:  # string, range, number
         variable = tk.StringVar()
-        widget = tk.Entry(parent, textvariable=variable, bg=BG_SECONDARY, fg=FG_TEXT, insertbackground=FG_TEXT)
+        widget = tk.Entry(frame, textvariable=variable, bg=BG_SECONDARY, fg=FG_TEXT, insertbackground=FG_TEXT)
+        widget.pack(side=tk.RIGHT, fill=tk.X, expand=True)
         add_editing_menu(widget)
-        return variable, label, widget
+        return frame, (variable, widget)

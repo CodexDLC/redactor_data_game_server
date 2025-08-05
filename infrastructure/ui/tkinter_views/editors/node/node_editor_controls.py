@@ -69,24 +69,22 @@ class NodeEditorControls(BaseEditorControls):
             widget.destroy()
         self._property_widgets.clear()
 
-        common_props = self.schema.get("common_properties", {})
-        for key, prop_info in common_props.items():
-            # ИЗМЕНЕНО: Правильная распаковка трех значений: variable, label, widget
-            var, label, widget = create_widget_for_property(self.context_props_frame, key, prop_info)
-            label.pack(fill=tk.X, pady=(5, 0), anchor="w") # <-- ДОБАВЛЕНО: Упаковка метки
-            widget.pack(fill=tk.X, pady=(0, 5), padx=5) # <-- ДОБАВЛЕНО: Упаковка виджета
-            self._property_widgets[key] = (var, widget)
+        # --- ИСПРАВЛЕНИЕ: Упрощенная логика ---
+        def populate_properties(props):
+            for key, prop_info in props.items():
+                # Фабрика теперь возвращает готовую рамку
+                frame, (var, widget) = create_widget_for_property(self.context_props_frame, key, prop_info)
+                # Мы просто размещаем эту рамку целиком
+                frame.pack(fill=tk.X, pady=2)
+                self._property_widgets[key] = (var, widget)
+
+        populate_properties(self.schema.get("common_properties", {}))
 
         selected_rus_type = self.type_combobox.get()
         selected_eng_type = self.TYPE_MAPPING.get(selected_rus_type)
         if selected_eng_type:
             specific_props = self.schema.get("type_specific_properties", {}).get(selected_eng_type, {})
-            for key, prop_info in specific_props.items():
-                # ИЗМЕНЕНО: Правильная распаковка трех значений: variable, label, widget
-                var, label, widget = create_widget_for_property(self.context_props_frame, key, prop_info)
-                label.pack(fill=tk.X, pady=(5, 0), anchor="w") # <-- ДОБАВЛЕНО: Упаковка метки
-                widget.pack(fill=tk.X, pady=(0, 5), padx=5) # <-- ДОБАВЛЕНО: Упаковка виджета
-                self._property_widgets[key] = (var, widget)
+            populate_properties(specific_props)
 
     def _select_color(self):
         """Открывает диалог выбора цвета и обновляет UI."""

@@ -10,15 +10,16 @@ from infrastructure.persistence.json_block_repository import JsonBlockRepository
 from infrastructure.persistence.json_location_repository import JsonLocationRepository
 from infrastructure.persistence.json_schema_repository import JsonSchemaRepository
 from infrastructure.persistence.json_property_repository import JsonPropertyRepository
-from infrastructure.persistence.json_tag_repository import JsonTagRepository  # <--- 1. НОВЫЙ ИМПОРТ
-from infrastructure.ui.tkinter_views.editors.node.node_editor_view import NodeEditorView
-from core.node_editor.node_editor_service import NodeEditorService
+from infrastructure.persistence.json_tag_repository import JsonTagRepository  # <--- ИСПРАВЛЕНИЕ ЗДЕСЬ
+
 from infrastructure.ui.tkinter_views.left_panel.universal import UniversalLeftPanel
 from infrastructure.ui.tkinter_views.editors.block.block_editor_view import BlockEditorView
 from core.block_editor.block_editor_service import BlockEditorService
 from infrastructure.ui.tkinter_views.widgets.floating_palette import FloatingPaletteWindow
+from infrastructure.ui.tkinter_views.widgets.log_console_window import LogConsoleWindow
 from infrastructure.ui.tkinter_views.styles import *
 
+# Определяем константы на уровне модуля
 MINIATURE_SIZE = 50
 MINIATURE_PADDING = 5
 DEFAULT_FONT = ("Helvetica", 10)
@@ -40,44 +41,46 @@ class TextWidgetHandler(logging.Handler):
 
 
 class MapEditorApp(tk.Frame):
+    """
+    Класс редактора карты
+
+    """
     def __init__(self, master):
         super().__init__(master, bg=BG_PRIMARY)
 
-        self.log_widget = None
+        # --- 1. Инициализация состояния и репозиториев ---
         self.logger = logging.getLogger()
         self.logger.setLevel(logging.INFO)
 
-        # --- Инициализация репозиториев ---
         self.node_repo = JsonNodeRepository()
         self.block_repo = JsonBlockRepository()
         self.location_repo = JsonLocationRepository()
-        self.property_repo = JsonPropertyRepository()
         self.schema_repo = JsonSchemaRepository()
-        self.tag_repo = JsonTagRepository()  # <--- 2. СОЗДАЕМ ЭКЗЕМПЛЯР РЕПОЗИТОРИЯ ТЕГОВ
+        self.tag_repo = JsonTagRepository()
+        self.property_repo = JsonPropertyRepository()
 
-        self.nodes_panel_view = None
         self.active_brush_node: Optional[dict] = None
+        self.log_console_window: Optional[LogConsoleWindow] = None
 
-        # --- Создание UI ---
+        # --- 2. Построение основного UI ---
         self.toolbar = tk.Frame(self, bg=BG_SECONDARY)
         self.toolbar.pack(side=tk.TOP, fill=tk.X)
-        self.create_toolbar()
 
         main_content_frame = tk.Frame(self, bg=BG_PRIMARY)
         main_content_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         self.left_panel = UniversalLeftPanel(
-            master=main_content_frame, app=self, node_repo=self.node_repo, block_repo=self.block_repo,
-            location_repo=self.location_repo, miniature_size=MINIATURE_SIZE,
-            miniature_padding=MINIATURE_PADDING, font=DEFAULT_FONT, frame_width=FRAME_WIDTH
+            master=main_content_frame, app=self, node_repo=self.node_repo,
+            block_repo=self.block_repo, location_repo=self.location_repo,
+            miniature_size=MINIATURE_SIZE, miniature_padding=MINIATURE_PADDING,
+            font=DEFAULT_FONT, frame_width=FRAME_WIDTH
         )
         self.left_panel.pack(side=tk.LEFT, fill=tk.Y, padx=5, pady=5)
 
         right_area_frame = tk.Frame(main_content_frame, bg=BG_PRIMARY)
         right_area_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.menu_frame = tk.Frame(right_area_frame, bg=BG_CANVAS)
-        self.menu_frame.pack(fill=tk.X, side=tk.TOP)
+        # --- ПАНЕЛЬ-ПОДСКАЗКА ОТСЮДА УДАЛЕНА ---
 
         self.editor_container = tk.Frame(right_area_frame, bg=BG_PRIMARY)
         self.editor_container.pack(fill=tk.BOTH, expand=True)
@@ -86,39 +89,27 @@ class MapEditorApp(tk.Frame):
                                    bg=BG_CANVAS, fg=FG_TEXT)
         self.status_bar.pack(side=tk.BOTTOM, fill=tk.X)
 
-        self.create_modes_menu()
+        # --- 3. Финальная настройка ---
+        self._create_toolbar()
         self.show_mode_selection_screen()
 
-    def create_toolbar(self):
+    def _create_toolbar(self):
+        tk.Button(self.toolbar, text="Редактор Блоков", command=self.show_block_editor, bg=BG_PRIMARY,
+                  fg=FG_TEXT).pack(side=tk.LEFT, padx=5, pady=2)
+        tk.Button(self.toolbar, text="Редактор Объектов", command=self.show_object_editor, bg=BG_PRIMARY,
+                  fg=FG_TEXT).pack(side=tk.LEFT, padx=5, pady=2)
+        ttk.Separator(self.toolbar, orient='vertical').pack(side=tk.LEFT, fill='y', padx=10, pady=2)
         tk.Button(self.toolbar, text="Открыть консоль логов", command=self.show_log_console, bg=BG_PRIMARY,
                   fg=FG_TEXT).pack(side=tk.LEFT, padx=5, pady=2)
 
     def show_log_console(self):
-        if self.log_widget and self.log_widget.master.winfo_exists():
-            self.log_widget.master.lift()
-            return
-
-        log_window = tk.Toplevel(self)
-        log_window.title("Консоль логов")
-        log_window.geometry("600x400")
-
-        self.log_widget = tk.Text(log_window, bg=CODE_BG, fg=CODE_FG, font=CODE_FONT)
-        self.log_widget.pack(fill=tk.BOTH, expand=True)
-
-        handler = TextWidgetHandler(self.log_widget)
-        handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-        self.logger.addHandler(handler)
+        if self.log_console_window and self.log_console_window.winfo_exists():
+            self.log_console_window.lift()
+        else:
+            self.log_console_window = LogConsoleWindow(self)
 
     def set_status_message(self, message: str, is_error: bool = False):
         self.status_bar.config(text=message, fg=ERROR_COLOR if is_error else FG_TEXT)
-
-    def create_modes_menu(self):
-        tk.Button(self.menu_frame, text="Редактор Нод", command=self.show_node_editor).pack(side=tk.LEFT, padx=5,
-                                                                                            pady=2)
-        tk.Button(self.menu_frame, text="Редактор Блоков", command=self.show_block_editor).pack(side=tk.LEFT, padx=5,
-                                                                                                pady=2)
-        tk.Button(self.menu_frame, text="Редактор Локаций", command=self.show_location_editor).pack(side=tk.LEFT,
-                                                                                                    padx=5, pady=2)
 
     def clear_editor_container(self):
         for widget in self.editor_container.winfo_children():
@@ -129,78 +120,35 @@ class MapEditorApp(tk.Frame):
         tk.Label(self.editor_container, text="Выберите режим в меню сверху", font=("Helvetica", 16), fg=FG_TEXT,
                  bg=BG_PRIMARY).pack(expand=True)
 
-    def show_node_editor(self):
-        self.clear_editor_container()
-        node_schema = self.schema_repo.get_node_schema()
-        # --- 3. ИЗМЕНЕНИЯ ЗДЕСЬ ---
-        # Получаем список тегов для передачи в UI
-        node_tags = self.tag_repo.get_tags_by_category('node_tags')
-
-        # Передаем список тегов в NodeEditorView
-        view = NodeEditorView(self.editor_container, self, schema=node_schema, available_tags=node_tags)
-
-        # Передаем репозиторий тегов в NodeEditorService
-        service = NodeEditorService(
-            view=view,
-            nodes_panel=self.left_panel.nodes_panel,
-            repository=self.node_repo,
-            tag_repository=self.tag_repo,  # <--- Передаем tag_repo
-            app=self
-        )
-        view.pack(fill=tk.BOTH, expand=True)
-        self.set_status_message("Режим: Редактор нодов")
-
     def show_block_editor(self):
         self.clear_editor_container()
         node_schema = self.schema_repo.get_node_schema()
-
-        # --- ИСПРАВЛЕНИЕ ЗДЕСЬ ---
-        # BlockEditorView ТРЕБУЕТ node_schema в конструкторе. Мы должны его передать.
         view = BlockEditorView(self.editor_container, self, node_schema)
-
-        # Убеждаемся, что и сервис получает все, что ему нужно
-        service = BlockEditorService(
-            view=view,
-            repository=self.block_repo,
-            node_repo=self.node_repo,
-            property_repo=self.property_repo,
-            node_schema=node_schema,
-            app=self
-        )
-
+        service = BlockEditorService(view=view, repository=self.block_repo, node_repo=self.node_repo, app=self)
         view.pack(fill=tk.BOTH, expand=True)
         self.left_panel.show_panel("blocks")
-        self.set_status_message("Режим: Редактор блоков")
+        self.set_status_message("Режим: Редактор Блоков (Тайлов)")
 
-    def show_location_editor(self):
+    def show_object_editor(self):
         self.clear_editor_container()
-        tk.Label(self.editor_container, text="Редактор Локаций (в разработке)", font=("Helvetica", 16), fg=FG_TEXT,
+        tk.Label(self.editor_container, text="Редактор Объектов (в разработке)", font=("Helvetica", 16), fg=FG_TEXT,
                  bg=BG_PRIMARY).pack(expand=True)
-        self.set_status_message("Режим: Редактор локаций")
+        self.set_status_message("Режим: Редактор Объектов")
 
     def set_active_brush_node(self, node_data: dict) -> None:
         self.active_brush_node = node_data
         node_name = node_data.get('display_name', node_data.get('node_key', 'N/A'))
         self.set_status_message(f"Активный нод-кисточка установлен: {node_name}")
-        self.set_cursor_to_brush()
-        logging.info(f"Активный нод-кисточка установлен: {node_name}")
-        if self.left_panel.nodes_panel and self.left_panel.nodes_panel.winfo_exists():
-            node_color = node_data.get('color', BG_PRIMARY)
-            self.left_panel.nodes_panel.update_brush_indicator(node_color)
+        self.master.config(cursor="dot")
+        if hasattr(self.left_panel, 'nodes_panel') and self.left_panel.nodes_panel:
+            self.left_panel.nodes_panel.update_brush_indicator(node_data.get('color', BG_PRIMARY))
 
     def unselect_active_brush_node(self):
         self.active_brush_node = None
-        self.set_cursor_to_default()
         self.set_status_message("Активная кисточка сброшена.")
-        logging.info("Активная кисточка сброшена.")
-        if self.left_panel.nodes_panel and self.left_panel.nodes_panel.winfo_exists():
+        self.master.config(cursor="")
+        if hasattr(self.left_panel, 'nodes_panel') and self.left_panel.nodes_panel:
             self.left_panel.nodes_panel.update_brush_indicator(None)
-
-    def set_cursor_to_brush(self):
-        self.master.config(cursor="dot")
-
-    def set_cursor_to_default(self):
-        self.master.config(cursor="arrow")
 
     def get_active_brush_node(self) -> Optional[dict]:
         return self.active_brush_node
@@ -208,14 +156,5 @@ class MapEditorApp(tk.Frame):
     def open_palette(self, palette_type: str, x: int, y: int):
         if palette_type == "nodes":
             items_data = self.node_repo.get_all()
-            FloatingPaletteWindow(self, title="Палитра Нодов", app=self, items_data=items_data, x=x, y=y,
-                                  palette_type="nodes")
-        elif palette_type == "blocks":
-            # ...
-            pass
-        elif palette_type == "locations":
-            # ...
-            pass
-
-    def get_selected_node_key(self) -> Optional[str]:
-        return None
+            FloatingPaletteWindow(self, title="Палитра Кирпичиков", app=self, items_data=items_data, x=x, y=y)
+        # TODO: Добавить логику для других палитр
