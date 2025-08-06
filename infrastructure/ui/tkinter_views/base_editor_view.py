@@ -1,4 +1,4 @@
-# File: infrastructure/ui/tkinter_views/base_editor_view.py (version 0.5)
+# File: infrastructure/ui/tkinter_views/base_editor_view.py
 import tkinter as tk
 from typing import Any, Callable, Dict
 from .widgets.code_preview_window import CodePreviewWindow
@@ -23,6 +23,7 @@ class BaseEditorView(tk.Frame):
         self.right_frame = None
         self.controls = None
         self.context_menu = None
+        self.service = None # Добавляем атрибут для сервиса
 
     def three_panel_layout(self):
         """Создает общую трехпанельную компоновку."""
@@ -51,7 +52,8 @@ class BaseEditorView(tk.Frame):
     def _create_context_menu_for_canvas(self, canvas: tk.Canvas):
         """Создает и привязывает универсальное контекстное меню к канвасу."""
         commands = {
-            "unselect_brush": self.app.unselect_active_brush_node,
+            # --- ИСПРАВЛЕНО: Используем правильное имя метода ---
+            "unselect_brush": self.app.unselect_active_brush,
             "cut": lambda: canvas.event_generate("<<Cut>>"),
             "copy": lambda: canvas.event_generate("<<Copy>>"),
             "paste": lambda: canvas.event_generate("<<Paste>>"),
