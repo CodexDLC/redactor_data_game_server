@@ -7,6 +7,7 @@ from typing import Optional, Any
 
 from infrastructure.persistence.initializer import RepositoryInitializer
 from core.editor_initializer import EditorInitializer
+from core.tag_filter_service import TagFilterService # --- ДОБАВЛЕНО ---
 
 from infrastructure.ui.tkinter_views.left_panel.universal import UniversalLeftPanel
 from infrastructure.ui.tkinter_views.editors.block.block_editor_view import BlockEditorView
@@ -49,6 +50,8 @@ class MapEditorApp(tk.Frame):
         self.logger.setLevel(logging.INFO)
 
         self.repos = RepositoryInitializer()
+        # --- ИСПРАВЛЕНО: Инициализируем TagFilterService здесь ---
+        self.tag_filter_service = TagFilterService(self.repos.tag)
         self.editors = EditorInitializer(self)
 
         self.active_node_brush: Optional[dict] = None
@@ -157,7 +160,6 @@ class MapEditorApp(tk.Frame):
         self.set_status_message("Активная кисточка сброшена.")
         self.master.master.config(cursor="")
 
-    # --- ИСПРАВЛЕНО: Добавляем логику для других палитр ---
     def open_palette(self, palette_type: str, x: int, y: int):
         if palette_type == "nodes":
             items_data = self.repos.node.get_all()
@@ -167,7 +169,6 @@ class MapEditorApp(tk.Frame):
             node_data_source = self.repos.node.get_all()
             FloatingPaletteWindow(self, title="Палитра Блоков", app=self, items_data=items_data, x=x, y=y,
                                   palette_type="blocks", node_data_source=node_data_source)
-        # TODO: Добавить логику для других палитр
 
     def on_block_selected(self, block_name: str):
         """

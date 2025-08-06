@@ -47,7 +47,6 @@ class BlockEditorService:
             'calculated_exits': all_exits
         }
 
-        # --- ДОБАВЛЕНО: Сохраняем теги в репозитории ---
         self.app.repos.tag.add_tags_to_category('block_tags', block_data_to_save.get('tags', []))
 
         self.repository.upsert(block_key, block_data_to_save)
@@ -77,17 +76,19 @@ class BlockEditorService:
         nodes_structure[row][col] = local_id_str
         block_data['nodes_structure'] = tuple(tuple(r) for r in nodes_structure)
 
-        self.enrich_data_with_colors(block_data)
+        block_data = self.enrich_data_with_colors(
+            block_data)  # --- ИСПРАВЛЕНО: Теперь сохраняем возвращаемое значение ---
         self.view.set_form_data(block_data)
 
         logging.info(
             f"BlockEditorService: Нод '{brush_node['node_key']}' размещен в [{row},{col}] с ID {local_id_str}.")
 
-    def enrich_data_with_colors(self, block_data: dict) -> None:
+    # --- ИСПРАВЛЕНО: Возвращаем словарь ---
+    def enrich_data_with_colors(self, block_data: dict) -> dict:
         """
         Публичный метод для обогащения данных блока цветами.
         """
-        self._enrich_block_data_with_colors(block_data)
+        return self._enrich_block_data_with_colors(block_data)
 
     def _enrich_block_data_with_colors(self, block_data: dict) -> dict:
         for node_id, node_details in block_data.get('nodes_data', {}).items():

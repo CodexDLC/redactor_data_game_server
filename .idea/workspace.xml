@@ -4,35 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="73ec93af-afc8-4c10-812d-bfe3f817fd17" name="Changes" comment="control 0.2">
-      <change afterPath="$PROJECT_DIR$/core/editor_initializer.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/templates/blocks.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/infrastructure/persistence/initializer.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/infrastructure/persistence/json_module_repository.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/infrastructure/persistence/json_raw_location_repository.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/interfaces/persistence/i_module_repository.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/interfaces/persistence/i_raw_location_repository.py" afterDir="false" />
+    <list default="true" id="73ec93af-afc8-4c10-812d-bfe3f817fd17" name="Changes" comment="future + refactoring">
+      <change afterPath="$PROJECT_DIR$/core/tag_filter_service.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/widgets/tag_input_widget.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/block_editor/block_editor_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/block_editor/block_editor_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/blocks.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/nodes.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/templates/nodes.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/tags_library.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/tags_library.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/persistence/json_block_repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/persistence/json_block_repository.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/persistence/json_location_repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/persistence/json_location_repository.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/persistence/json_node_repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/persistence/json_node_repository.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/persistence/json_property_repository.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/persistence/json_schema_repository.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/persistence/json_tag_repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/persistence/json_tag_repository.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/base_editor_controls.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/base_editor_controls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/base_editor_view.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/base_editor_view.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_editor_view.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_editor_view.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/left_panel/blocks.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/left_panel/blocks.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/left_panel/locations.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/left_panel/locations.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/left_panel/universal.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/left_panel/universal.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/widgets/floating_palette.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/widgets/floating_palette.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/interfaces/persistence/i_location_repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/interfaces/persistence/i_location_repository.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/interfaces/persistence/i_property_repository.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/interfaces/persistence/i_schema_repository.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/infrastructure/persistence/initializer.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/persistence/initializer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_editor_controls.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_editor_controls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/map_editor_app.py" beforeDir="false" afterPath="$PROJECT_DIR$/map_editor_app.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -155,13 +133,22 @@
       <option name="project" value="LOCAL" />
       <updated>1754510067326</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="future + refactoring">
+      <option name="closed" value="true" />
+      <created>1754518795855</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1754518795855</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="future: new editor location interface" />
     <MESSAGE value="future: new widget save_brush_dialog.py" />
     <MESSAGE value="control 0.2" />
-    <option name="LAST_COMMIT_MESSAGE" value="control 0.2" />
+    <MESSAGE value="future + refactoring" />
+    <option name="LAST_COMMIT_MESSAGE" value="future + refactoring" />
   </component>
 </project>
