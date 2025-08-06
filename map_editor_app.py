@@ -19,6 +19,7 @@ from infrastructure.ui.tkinter_views.widgets.floating_palette import FloatingPal
 from infrastructure.ui.tkinter_views.widgets.log_console_window import LogConsoleWindow
 from infrastructure.ui.tkinter_views.styles import *
 
+
 # Определяем константы на уровне модуля
 MINIATURE_SIZE = 50
 MINIATURE_PADDING = 5
@@ -41,6 +42,10 @@ class TextWidgetHandler(logging.Handler):
 
 
 class MapEditorApp(tk.Frame):
+    """
+    Класс редактора карты
+
+    """
     def __init__(self, master):
         super().__init__(master, bg=BG_PRIMARY)
 
@@ -48,7 +53,6 @@ class MapEditorApp(tk.Frame):
         self.logger = logging.getLogger()
         self.logger.setLevel(logging.INFO)
 
-        # --- ИСПРАВЛЕНИЕ: Инициализируем node_repo здесь ---
         self.node_repo = JsonNodeRepository()
         self.block_repo = JsonBlockRepository()
         self.location_repo = JsonLocationRepository()
@@ -57,6 +61,7 @@ class MapEditorApp(tk.Frame):
         self.property_repo = JsonPropertyRepository()
 
         self.active_brush_node: Optional[dict] = None
+        self.active_brush_block: Optional[dict] = None
         self.log_console_window: Optional[LogConsoleWindow] = None
 
         # --- 2. Построение основного UI ---
@@ -120,10 +125,9 @@ class MapEditorApp(tk.Frame):
     def show_block_editor(self):
         self.clear_editor_container()
         node_schema = self.schema_repo.get_node_schema()
-        view = BlockEditorView(self.editor_container, self, node_schema)
-        # --- ИСПРАВЛЕНИЕ: Добавляем node_repo в конструктор сервиса ---
-        service = BlockEditorService(view=view, repository=self.block_repo, node_repo=self.node_repo, app=self)
-        view.pack(fill=tk.BOTH, expand=True)
+        self.current_editor_view = BlockEditorView(self.editor_container, self, node_schema)
+        service = BlockEditorService(view=self.current_editor_view, repository=self.block_repo, node_repo=self.node_repo, app=self)
+        self.current_editor_view.pack(fill=tk.BOTH, expand=True)
         self.left_panel.show_panel("blocks")
         self.set_status_message("Режим: Редактор Блоков (Тайлов)")
 
@@ -138,15 +142,27 @@ class MapEditorApp(tk.Frame):
         node_name = node_data.get('display_name', node_data.get('node_key', 'N/A'))
         self.set_status_message(f"Активный нод-кисточка установлен: {node_name}")
         self.master.config(cursor="dot")
-        if hasattr(self.left_panel, 'nodes_panel') and self.left_panel.nodes_panel:
-            self.left_panel.nodes_panel.update_brush_indicator(node_data.get('color', BG_PRIMARY))
+
+    def set_active_brush_block(self, block_data: dict) -> None:
+        """НОВЫЙ МЕТОД: Устанавливает активную кисточку-блок."""
+        self.active_brush_block = block_data
+        block_name = block_data.get('display_name', block_data.get('block_key', 'N/A'))
+        self.set_status_message(f"Активный блок-кисточка установлен: {block_name}")
+        self.master.config(cursor="plus")
+
+    def on_block_selected(self, block_key: str):
+        block_data = self.block_repo.get_by_key(block_key)
+        if block_data:
+            block_data['block_key'] = block_key
+            self.current_editor_view.set_form_data(block_data)
+            self.set_status_message(f"Загружен блок для редактирования: {block_key}")
+        else:
+            self.set_status_message(f"Ошибка: Не удалось найти данные для блока: {block_key}", is_error=True)
 
     def unselect_active_brush_node(self):
         self.active_brush_node = None
         self.set_status_message("Активная кисточка сброшена.")
         self.master.config(cursor="")
-        if hasattr(self.left_panel, 'nodes_panel') and self.left_panel.nodes_panel:
-            self.left_panel.nodes_panel.update_brush_indicator(None)
 
     def get_active_brush_node(self) -> Optional[dict]:
         return self.active_brush_node
@@ -155,4 +171,8 @@ class MapEditorApp(tk.Frame):
         if palette_type == "nodes":
             nodes_data = self.node_repo.get_all()
             FloatingPaletteWindow(self, title="Палитра Кирпичиков", app=self, items_data=nodes_data, x=x, y=y)
-        # TODO: Добавить логику для других палитр
+        elif palette_type == "blocks":
+            blocks_data = self.block_repo.get_all()
+            nodes_data = self.node_repo.get_all()
+            FloatingPaletteWindow(self, title="Палитра Блоков", app=self, items_data=blocks_data, x=x, y=y,
+                                  palette_type="blocks", node_data_source=nodes_data)

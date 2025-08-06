@@ -1,5 +1,7 @@
+# File: interfaces/persistence/i_block_repository.py
 from abc import ABC, abstractmethod
 from typing import Dict, Any
+
 
 class IBlockRepository(ABC):
     """Интерфейс для репозитория, управляющего хранением блоков (3x3)."""
@@ -17,4 +19,9 @@ class IBlockRepository(ABC):
     @abstractmethod
     def delete(self, block_key: str) -> None:
         """Удаляет блок по ключу."""
+        pass
+
+    @abstractmethod
+    def get_by_key(self, block_key: str) -> Dict[str, Any] | None:
+        """Возвращает данные одного блока по ключу."""
         pass

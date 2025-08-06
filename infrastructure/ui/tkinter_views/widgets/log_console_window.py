@@ -36,11 +36,22 @@ class LogConsoleWindow(tk.Toplevel):
         log_widget.pack(fill=tk.BOTH, expand=True)
 
         # Создаем и подключаем обработчик логов
-        handler = TextWidgetHandler(log_widget)
-        handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        self.handler = TextWidgetHandler(log_widget)  # <--- СОХРАНЯЕМ ССЫЛКУ НА ОБРАБОТЧИК
+        self.handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
 
         # Подключаемся к корневому логгеру
-        logging.getLogger().addHandler(handler)
+        logging.getLogger().addHandler(self.handler)
+
+        # <--- НОВЫЙ КОД: ОБРАБАТЫВАЕМ СОБЫТИЕ ЗАКРЫТИЯ ОКНА --->
+        self.protocol("WM_DELETE_WINDOW", self.on_close)
 
         # Уведомляем, что консоль запущена
         logging.info("Консоль логов инициализирована.")
+
+    def on_close(self):
+        """
+        Метод, который вызывается при закрытии окна.
+        Удаляем обработчик из логгера.
+        """
+        logging.getLogger().removeHandler(self.handler)
+        self.destroy()
