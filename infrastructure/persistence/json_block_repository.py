@@ -1,3 +1,4 @@
+# File: infrastructure/persistence/json_block_repository.py
 import json
 import os
 from typing import Dict, Any
@@ -44,3 +45,9 @@ class JsonBlockRepository(IBlockRepository):
         if block_key in self._blocks:
             del self._blocks[block_key]
             self._save_data()
+
+    # --- ИСПРАВЛЕНИЕ: ДОБАВЛЕН НЕДОСТАЮЩИЙ МЕТОД ---
+    def get_by_key(self, block_key: str) -> Dict[str, Any] | None:
+        """Возвращает данные одного блока по ключу."""
+        return self._blocks.get(block_key)
+    # ---------------------------------------------

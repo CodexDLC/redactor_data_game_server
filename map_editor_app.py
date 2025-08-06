@@ -3,14 +3,14 @@ import tkinter as tk
 from tkinter import ttk
 import logging
 from logging import LogRecord
-from typing import Optional
+from typing import Optional, Any
 
 from infrastructure.persistence.json_node_repository import JsonNodeRepository
 from infrastructure.persistence.json_block_repository import JsonBlockRepository
 from infrastructure.persistence.json_location_repository import JsonLocationRepository
 from infrastructure.persistence.json_schema_repository import JsonSchemaRepository
 from infrastructure.persistence.json_property_repository import JsonPropertyRepository
-from infrastructure.persistence.json_tag_repository import JsonTagRepository  # <--- ИСПРАВЛЕНИЕ ЗДЕСЬ
+from infrastructure.persistence.json_tag_repository import JsonTagRepository
 
 from infrastructure.ui.tkinter_views.left_panel.universal import UniversalLeftPanel
 from infrastructure.ui.tkinter_views.editors.block.block_editor_view import BlockEditorView
@@ -43,7 +43,6 @@ class TextWidgetHandler(logging.Handler):
 class MapEditorApp(tk.Frame):
     """
     Класс редактора карты
-
     """
     def __init__(self, master):
         super().__init__(master, bg=BG_PRIMARY)
@@ -61,6 +60,7 @@ class MapEditorApp(tk.Frame):
 
         self.active_brush_node: Optional[dict] = None
         self.log_console_window: Optional[LogConsoleWindow] = None
+        self.current_editor_view: Optional[Any] = None
 
         # --- 2. Построение основного UI ---
         self.toolbar = tk.Frame(self, bg=BG_SECONDARY)
@@ -79,8 +79,6 @@ class MapEditorApp(tk.Frame):
 
         right_area_frame = tk.Frame(main_content_frame, bg=BG_PRIMARY)
         right_area_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        # --- ПАНЕЛЬ-ПОДСКАЗКА ОТСЮДА УДАЛЕНА ---
 
         self.editor_container = tk.Frame(right_area_frame, bg=BG_PRIMARY)
         self.editor_container.pack(fill=tk.BOTH, expand=True)
@@ -119,13 +117,16 @@ class MapEditorApp(tk.Frame):
         self.clear_editor_container()
         tk.Label(self.editor_container, text="Выберите режим в меню сверху", font=("Helvetica", 16), fg=FG_TEXT,
                  bg=BG_PRIMARY).pack(expand=True)
+        self.current_editor_view = None
 
     def show_block_editor(self):
         self.clear_editor_container()
         node_schema = self.schema_repo.get_node_schema()
         view = BlockEditorView(self.editor_container, self, node_schema)
         service = BlockEditorService(view=view, repository=self.block_repo, node_repo=self.node_repo, app=self)
+        view.service = service
         view.pack(fill=tk.BOTH, expand=True)
+        self.current_editor_view = view
         self.left_panel.show_panel("blocks")
         self.set_status_message("Режим: Редактор Блоков (Тайлов)")
 
@@ -133,6 +134,7 @@ class MapEditorApp(tk.Frame):
         self.clear_editor_container()
         tk.Label(self.editor_container, text="Редактор Объектов (в разработке)", font=("Helvetica", 16), fg=FG_TEXT,
                  bg=BG_PRIMARY).pack(expand=True)
+        self.current_editor_view = None
         self.set_status_message("Режим: Редактор Объектов")
 
     def set_active_brush_node(self, node_data: dict) -> None:
@@ -140,15 +142,11 @@ class MapEditorApp(tk.Frame):
         node_name = node_data.get('display_name', node_data.get('node_key', 'N/A'))
         self.set_status_message(f"Активный нод-кисточка установлен: {node_name}")
         self.master.config(cursor="dot")
-        if hasattr(self.left_panel, 'nodes_panel') and self.left_panel.nodes_panel:
-            self.left_panel.nodes_panel.update_brush_indicator(node_data.get('color', BG_PRIMARY))
 
     def unselect_active_brush_node(self):
         self.active_brush_node = None
         self.set_status_message("Активная кисточка сброшена.")
         self.master.config(cursor="")
-        if hasattr(self.left_panel, 'nodes_panel') and self.left_panel.nodes_panel:
-            self.left_panel.nodes_panel.update_brush_indicator(None)
 
     def get_active_brush_node(self) -> Optional[dict]:
         return self.active_brush_node
@@ -158,3 +156,22 @@ class MapEditorApp(tk.Frame):
             items_data = self.node_repo.get_all()
             FloatingPaletteWindow(self, title="Палитра Кирпичиков", app=self, items_data=items_data, x=x, y=y)
         # TODO: Добавить логику для других палитр
+
+    def on_block_selected(self, block_name: str):
+        """
+        Метод-обработчик для выбора блока в левой панели.
+        Загружает выбранный блок в редактор.
+        """
+        if self.current_editor_view and isinstance(self.current_editor_view, BlockEditorView):
+            block_data = self.block_repo.get_by_key(block_name)
+            if block_data:
+                # Добавляем ключ блока в данные для отображения
+                block_data['block_key'] = block_name
+                # Обогащаем данные цветами, чтобы они могли быть отображены
+                enriched_data = self.current_editor_view.service._enrich_block_data_with_colors(block_data)
+                self.current_editor_view.set_form_data(enriched_data)
+                self.set_status_message(f"Блок '{block_name}' загружен в редактор.")
+            else:
+                self.set_status_message(f"Ошибка: Блок '{block_name}' не найден в репозитории.", is_error=True)
+        else:
+            self.set_status_message("Пожалуйста, переключитесь на 'Редактор Блоков', чтобы выбрать блок.", is_error=True)

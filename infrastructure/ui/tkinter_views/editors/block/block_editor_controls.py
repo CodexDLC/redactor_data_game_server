@@ -1,5 +1,6 @@
 # File: infrastructure/ui/tkinter_views/editors/block/block_editor_controls.py
 import tkinter as tk
+from tkinter import scrolledtext
 from typing import Any, Dict
 
 from ...base_editor_controls import BaseEditorControls
@@ -18,31 +19,45 @@ class BlockEditorControls(BaseEditorControls):
         self.entry_block_key: tk.Entry | None = None
         self.entry_display_name: tk.Entry | None = None
         self.entry_block_tags: tk.Entry | None = None
+        self.exits_text_widget: scrolledtext.ScrolledText | None = None  # <--- ДОБАВЛЕНО
 
         super().__init__(master, parent_view)
 
     def _build_ui(self):
         """Строит UI только для свойств самого блока."""
-        frame = tk.LabelFrame(self, text="Свойства Тайла", fg=FG_TEXT, bg=BG_PRIMARY, padx=5, pady=5)
-        frame.pack(fill=tk.X, padx=5, pady=5, side=tk.TOP)
+        main_frame = tk.LabelFrame(self, text="Свойства Тайла", fg=FG_TEXT, bg=BG_PRIMARY, padx=5, pady=5)
+        main_frame.pack(fill=tk.X, padx=5, pady=5, side=tk.TOP)
 
-        tk.Label(frame, text="Ключ (block_key):", fg=FG_TEXT, bg=BG_PRIMARY).pack(anchor="w")
-        self.entry_block_key = tk.Entry(frame, bg=BG_SECONDARY, fg=FG_TEXT, insertbackground=FG_TEXT)
+        tk.Label(main_frame, text="Ключ (block_key):", fg=FG_TEXT, bg=BG_PRIMARY).pack(anchor="w")
+        self.entry_block_key = tk.Entry(main_frame, bg=BG_SECONDARY, fg=FG_TEXT, insertbackground=FG_TEXT)
         self.entry_block_key.pack(fill=tk.X, pady=(0, 5))
         add_editing_menu(self.entry_block_key)
 
-        tk.Label(frame, text="Имя для UI:", fg=FG_TEXT, bg=BG_PRIMARY).pack(anchor="w")
-        self.entry_display_name = tk.Entry(frame, bg=BG_SECONDARY, fg=FG_TEXT, insertbackground=FG_TEXT)
+        tk.Label(main_frame, text="Имя для UI:", fg=FG_TEXT, bg=BG_PRIMARY).pack(anchor="w")
+        self.entry_display_name = tk.Entry(main_frame, bg=BG_SECONDARY, fg=FG_TEXT, insertbackground=FG_TEXT)
         self.entry_display_name.pack(fill=tk.X, pady=(0, 5))
         add_editing_menu(self.entry_display_name)
 
-        tk.Label(frame, text="Теги (через запятую):", fg=FG_TEXT, bg=BG_PRIMARY).pack(anchor="w")
-        self.entry_block_tags = tk.Entry(frame, bg=BG_SECONDARY, fg=FG_TEXT, insertbackground=FG_TEXT)
+        tk.Label(main_frame, text="Теги (через запятую):", fg=FG_TEXT, bg=BG_PRIMARY).pack(anchor="w")
+        self.entry_block_tags = tk.Entry(main_frame, bg=BG_SECONDARY, fg=FG_TEXT, insertbackground=FG_TEXT)
         self.entry_block_tags.pack(fill=tk.X, pady=(0, 5))
         add_editing_menu(self.entry_block_tags)
 
+        # --- ДОБАВЛЕНО: Новый фрейм для отображения связей ---
+        self._create_exits_panel()
+
         # Вызываем родительский метод, чтобы создать кнопки "Сохранить", "Удалить" и т.д.
         super()._build_ui()
+
+    def _create_exits_panel(self):  # <--- НОВЫЙ МЕТОД
+        """Создает и размещает панель для отображения связей нодов."""
+        exits_frame = tk.LabelFrame(self, text="Связи нодов", fg=FG_TEXT, bg=BG_PRIMARY, padx=5, pady=5)
+        exits_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5, side=tk.TOP)
+
+        self.exits_text_widget = scrolledtext.ScrolledText(exits_frame, bg=CODE_BG, fg=CODE_FG, font=CODE_FONT,
+                                                           wrap=tk.WORD)
+        self.exits_text_widget.pack(fill=tk.BOTH, expand=True)
+        self.exits_text_widget.config(state=tk.DISABLED)
 
     def set_data(self, block_data: Dict[str, Any]):
         """Заполняет поля данными блока."""
@@ -59,6 +74,23 @@ class BlockEditorControls(BaseEditorControls):
             tags_str = ', '.join(tags_list)
             self.entry_block_tags.delete(0, tk.END)
             self.entry_block_tags.insert(0, tags_str)
+
+        # Обновляем панель связей, если она существует
+        if self.exits_text_widget:
+            self.set_exits_data(block_data.get('calculated_exits', {}))
+
+    def set_exits_data(self, exits_data: Dict[str, Any]):  # <--- НОВЫЙ МЕТОД
+        """Отображает данные о связях в текстовом виджете."""
+        if self.exits_text_widget:
+            self.exits_text_widget.config(state=tk.NORMAL)
+            self.exits_text_widget.delete('1.0', tk.END)
+            if exits_data:
+                for node_id, exits in exits_data.items():
+                    self.exits_text_widget.insert(tk.END, f"Нод {node_id}:\n")
+                    for direction, target_node in exits.items():
+                        self.exits_text_widget.insert(tk.END, f"  - {direction}: {target_node}\n")
+                    self.exits_text_widget.insert(tk.END, "\n")
+            self.exits_text_widget.config(state=tk.DISABLED)
 
     def get_data(self) -> Dict[str, Any]:
         """Собирает данные из полей ввода."""

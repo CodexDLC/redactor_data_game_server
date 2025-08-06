@@ -15,8 +15,6 @@ class BlockEditorService:
         self.repository = repository
         self.app = app
         self.node_repo = node_repo
-        # Закомментировано, так как класс был удален в пользу хелпера
-        # self.exits_calculator = BlockExitsCalculator()
         self.current_block_key: Optional[str] = None
 
         self.view.bind_save_command(self.save_block)
@@ -55,9 +53,8 @@ class BlockEditorService:
 
     def on_canvas_click(self, row: int, col: int, node_id: int | None) -> None:
         brush_node = self.app.get_active_brush_node()
-        if not brush_node:
-            # Логика для удаления нода при клике без кисти (например, правой кнопкой) может быть здесь
-            logging.info("BlockEditorService: Клик без активной кисти. Действий не требуется.")
+        if not brush_node or 'node_key' not in brush_node:
+            logging.info("BlockEditorService: Клик без активной кисти или некорректный формат. Действий не требуется.")
             return
 
         block_data = self.view.get_form_data()
@@ -68,12 +65,12 @@ class BlockEditorService:
         local_id = row * width + col
         # -----------------------------------------
 
-        block_data['nodes_data'][local_id] = {
+        block_data['nodes_data'][str(local_id)] = {
             'template_key': brush_node['node_key']
         }
 
         nodes_structure = [list(r) for r in block_data['nodes_structure']]
-        nodes_structure[row][col] = local_id
+        nodes_structure[row][col] = str(local_id)
         block_data['nodes_structure'] = tuple(tuple(r) for r in nodes_structure)
 
         enriched_block_data = self._enrich_block_data_with_colors(block_data)

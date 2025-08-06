@@ -6,16 +6,15 @@ from interfaces.persistence.i_location_repository import ILocationRepository
 
 from .blocks import BlocksPanel
 from .locations import LocationsPanel
+from .map_tools import MapToolsPanel
 
-
-# --- УДАЛЕН ИМПОРТ NodesPanel ---
 
 class UniversalLeftPanel(tk.Frame):
     def __init__(self, master, app, node_repo: INodeRepository, block_repo: IBlockRepository,
                  location_repo: ILocationRepository, miniature_size, miniature_padding, font, frame_width):
         super().__init__(master, bg="#333333")
         self.app = app
-        self.node_repo = node_repo  # Оставляем, т.к. может понадобиться для отрисовки миниатюр
+        self.node_repo = node_repo
         self.block_repo = block_repo
         self.location_repo = location_repo
         self.miniature_size = miniature_size
@@ -23,12 +22,10 @@ class UniversalLeftPanel(tk.Frame):
         self.font = font
         self.frame_width = frame_width
 
-        # --- УДАЛЕНО: self.nodes_panel больше не нужен ---
         self.blocks_panel = None
         self.locations_panel = None
 
         self.setup_ui()
-        # --- ИЗМЕНЕНИЕ: По умолчанию показываем панель Блоков ---
         self.show_panel("blocks")
 
     def setup_ui(self):
@@ -45,7 +42,6 @@ class UniversalLeftPanel(tk.Frame):
         self.create_top_buttons()
 
     def create_top_buttons(self):
-        # --- УДАЛЕНА КНОПКА Nodes ---
         self.blocks_button = tk.Button(self.top_buttons_frame, text="Тайлы (3x3)",
                                        command=lambda: self.show_panel("blocks"))
         self.locations_button = tk.Button(self.top_buttons_frame, text="Объекты",
@@ -55,12 +51,11 @@ class UniversalLeftPanel(tk.Frame):
         self.locations_button.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=2)
 
     def show_panel(self, panel_name):
-        # --- УДАЛЕН БЛОК if panel_name == "nodes" ---
+        for widget in self.top_content_frame.winfo_children():
+            widget.destroy()
 
         if panel_name == "blocks":
             self.top_content_frame.config(text="Тайлы (3x3)")
-            for widget in self.top_content_frame.winfo_children():
-                widget.destroy()
             self.blocks_panel = BlocksPanel(self.top_content_frame, self.app, self.block_repo,
                                             self.miniature_size, self.miniature_padding,
                                             self.font, self.frame_width)
@@ -68,12 +63,8 @@ class UniversalLeftPanel(tk.Frame):
 
         elif panel_name == "locations":
             self.top_content_frame.config(text="Объекты")
-            for widget in self.top_content_frame.winfo_children():
-                widget.destroy()
             self.locations_panel = LocationsPanel(self.top_content_frame, self.app,
                                                   self.location_repo, self.block_repo,
                                                   self.miniature_size, self.miniature_padding,
                                                   self.font, self.frame_width)
             self.locations_panel.pack(fill=tk.BOTH, expand=True)
-
-    # Метод get_nodes_panel больше не нужен, так как панели нодов нет

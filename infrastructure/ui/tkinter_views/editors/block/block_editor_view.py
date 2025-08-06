@@ -1,6 +1,6 @@
 # File: infrastructure/ui/tkinter_views/editors/block/block_editor_view.py
 import tkinter as tk
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, Optional
 
 from interfaces.ui.i_block_editor_view import IBlockEditorView
 from .block_editor_controls import BlockEditorControls
@@ -17,6 +17,7 @@ class BlockEditorView(BaseEditorView, IBlockEditorView):
     def __init__(self, master, app: Any, node_schema: Dict[str, Any]):
         super().__init__(master, app)
         self.node_schema = node_schema
+        self.service: Optional[Any] = None
         self._block_data: dict = self.get_initial_data()
         self._on_canvas_click_callback: Callable | None = None
 
@@ -50,20 +51,19 @@ class BlockEditorView(BaseEditorView, IBlockEditorView):
     def get_initial_data(self) -> dict:
         """Возвращает пустую структуру данных для блока."""
         return {
-            'block_key': '',
-            'display_name': '',
+            'block_key': 'new_block',
+            'display_name': 'Новый Блок',
             'tags': [],
             'width': 3,
             'height': 3,
             'nodes_structure': [[None for _ in range(3)] for _ in range(3)],
-            'nodes_data': {}
+            'nodes_data': {},
+            'calculated_exits': {}
         }
 
     def _set_initial_data(self):
         """Устанавливает базовые значения при запуске редактора."""
         data = self.get_initial_data()
-        data['block_key'] = 'new_block'
-        data['display_name'] = 'Новый Блок'
         self.set_form_data(data)
 
     def set_form_data(self, data: dict) -> None:
@@ -71,6 +71,7 @@ class BlockEditorView(BaseEditorView, IBlockEditorView):
         self._block_data = data
         if self.controls:
             self.controls.set_data(data)
+            self.controls.set_exits_data(data.get('calculated_exits', {}))
         self.draw_block_on_canvas()
 
     def get_form_data(self) -> dict:
@@ -100,14 +101,25 @@ class BlockEditorView(BaseEditorView, IBlockEditorView):
         canvas_height = self.block_canvas.winfo_height()
         if canvas_width <= 1 or canvas_height <= 1: return
 
+        nodes_structure = self._block_data.get('nodes_structure', [])
+        nodes_data = self._block_data.get('nodes_data', {})
+
+        # Проверяем, что nodes_structure не пустая
+        if not nodes_structure or not nodes_structure[0]:
+            return
+
         grid_size = min(min(canvas_width, canvas_height), self.FIXED_GRID_SIZE)
-        tile_size = grid_size // 3
+
+        # Определяем размер сетки из данных
+        height = len(nodes_structure)
+        width = len(nodes_structure[0])
+
+        tile_size = min(grid_size // width, grid_size // height)
         if tile_size == 0: return
 
-        x_offset = (canvas_width - grid_size) // 2
-        y_offset = (canvas_height - grid_size) // 2
+        x_offset = (canvas_width - width * tile_size) // 2
+        y_offset = (canvas_height - height * tile_size) // 2
 
-        nodes_structure = self._block_data.get('nodes_structure', [])
         for r, row in enumerate(nodes_structure):
             for c, node_id in enumerate(row):
                 x1 = x_offset + c * tile_size
@@ -115,27 +127,32 @@ class BlockEditorView(BaseEditorView, IBlockEditorView):
                 x2 = x1 + tile_size
                 y2 = y1 + tile_size
 
-                node_data = self._block_data.get('nodes_data', {}).get(node_id)
-                fill_color = node_data.get('color', BG_SECONDARY) if node_data else BG_SECONDARY
+                node_details = nodes_data.get(str(node_id))
+                fill_color = node_details.get('color', BG_SECONDARY) if node_details else BG_SECONDARY
                 self.block_canvas.create_rectangle(x1, y1, x2, y2, fill=fill_color, outline=BG_CANVAS)
 
     def _on_canvas_click(self, event):
         """Обрабатывает клик по холсту и передает его в Service."""
         if not self._on_canvas_click_callback: return
 
+        nodes_structure = self._block_data.get('nodes_structure', [])
+        if not nodes_structure or not nodes_structure[0]:
+            return
+
+        height = len(nodes_structure)
+        width = len(nodes_structure[0])
         grid_size = min(min(self.block_canvas.winfo_width(), self.block_canvas.winfo_height()), self.FIXED_GRID_SIZE)
-        tile_size = grid_size // 3
+        tile_size = min(grid_size // width, grid_size // height)
         if tile_size == 0: return
 
-        x_offset = (self.block_canvas.winfo_width() - grid_size) // 2
-        y_offset = (self.block_canvas.winfo_height() - grid_size) // 2
+        x_offset = (self.block_canvas.winfo_width() - width * tile_size) // 2
+        y_offset = (self.block_canvas.winfo_height() - height * tile_size) // 2
 
         col = int((event.x - x_offset) / tile_size)
         row = int((event.y - y_offset) / tile_size)
 
-        if 0 <= row < 3 and 0 <= col < 3:
-            # --- ИСПРАВЛЕНИЕ ЗДЕСЬ: Используем 'row' и 'col' вместо 'r' и 'c' ---
-            node_id_in_structure = self._block_data['nodes_structure'][row][col]
+        if 0 <= row < height and 0 <= col < width:
+            node_id_in_structure = nodes_structure[row][col]
             self._on_canvas_click_callback(row, col, node_id_in_structure)
 
 
