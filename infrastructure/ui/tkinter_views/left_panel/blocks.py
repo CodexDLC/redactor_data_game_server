@@ -1,19 +1,22 @@
 # File: infrastructure/ui/tkinter_views/left_panel/blocks.py
 import tkinter as tk
 from tkinter import messagebox, ttk
-from typing import Dict, Any, List
-
 from .base import BaseLeftPanel
 from interfaces.persistence.i_block_repository import IBlockRepository
-from interfaces.persistence.i_node_repository import INodeRepository
 
 
 class BlocksPanel(BaseLeftPanel):
-    def __init__(self, master, app, block_repo: IBlockRepository, node_repo: INodeRepository, miniature_size,
-                 miniature_padding, font, frame_width):
+    # Исправленный маппинг для корректного сопоставления template_key из блоков с реальными нодами
+    TEMPLATE_KEY_MAPPING = {
+        'flor': 'walkable',
+        'wall': 'solid',
+        'solid': 'solid',
+        'walkable': 'walkable',
+        'void': 'void'
+    }
+
+    def __init__(self, master, app, block_repo: IBlockRepository, miniature_size, miniature_padding, font, frame_width):
         super().__init__(master, app, block_repo.get_all(), miniature_size, miniature_padding, font, frame_width)
-        self.node_repo = node_repo
-        self.blocks = self.blocks  # Эта строка теперь корректна, так как self.blocks уже содержит данные.
 
         tk.Label(self, text="Доступные блоки", fg="white", bg="#333333").pack(pady=5)
 
@@ -34,20 +37,23 @@ class BlocksPanel(BaseLeftPanel):
         self.canvas.pack(side="left", fill="both", expand=True)
         self.scrollbar.pack(side="right", fill="y")
 
-        self.bind("<Configure>", self.on_configure)
+        self.draw_all_miniatures()
 
-    def on_configure(self, event):
+    def on_notebook_configure(self, event):
         container_width = event.width
         if container_width > 0:
             new_num_cols = max(1, container_width // (self.frame_width + self.miniature_padding * 2))
+
             if new_num_cols != self.num_miniature_cols:
                 self.num_miniature_cols = new_num_cols
                 self.draw_all_miniatures()
 
-    def group_blocks_by_category(self) -> Dict[str, List[str]]:
+    def group_blocks_by_category(self):
         grouped_blocks = {}
         for name in sorted(self.blocks.keys()):
-            category = "Все блоки"
+            block_data_source = self.blocks.get(name, {})
+            tags = block_data_source.get('tags', [])
+            category = tags[0] if tags else "other"
             if category not in grouped_blocks:
                 grouped_blocks[category] = []
             grouped_blocks[category].append(name)
@@ -62,7 +68,11 @@ class BlocksPanel(BaseLeftPanel):
         for widget in container_frame.winfo_children():
             widget.destroy()
 
-        all_node_data = self.node_repo.get_all()
+        container_width = container_frame.winfo_width()
+        if container_width > 0:
+            self.num_miniature_cols = max(1, container_width // (self.frame_width + self.miniature_padding * 2))
+        else:
+            self.num_miniature_cols = 1
 
         if self.num_miniature_cols == 0:
             return
@@ -81,29 +91,41 @@ class BlocksPanel(BaseLeftPanel):
                                      bg="#222222", highlightthickness=0)
             block_canvas.pack(pady=(5, 0))
 
-            block_data = self.blocks[name]
-            nodes_structure = block_data.get('nodes_structure', [])
-            nodes_data_map = block_data.get('nodes_data', {})
+            block_data_source = self.blocks.get(name, {'nodes_structure': [], 'nodes_data': {}})
+            nodes_structure = block_data_source.get('nodes_structure', [])
+            block_nodes_data = block_data_source.get('nodes_data', {})
 
-            if nodes_structure:
-                block_size_cells = len(nodes_structure[0])
-                tile_size = self.miniature_size // block_size_cells
+            if not nodes_structure or not nodes_structure[0]:
+                continue
 
-                for r in range(block_size_cells):
-                    for c in range(block_size_cells):
-                        node_id = nodes_structure[r][c]
-                        if node_id is not None:
-                            node_template_key = nodes_data_map.get(str(node_id), {}).get('template_key')
-                            node_color = all_node_data.get(node_template_key, {}).get('color', '#888888')
+            height = len(nodes_structure)
+            width = len(nodes_structure[0])
+            tile_size = min(self.miniature_size // width, self.miniature_size // height)
+            if tile_size == 0: continue
+
+            for r, row_values in enumerate(nodes_structure):
+                for c, node_id in enumerate(row_values):
+                    x1 = c * tile_size
+                    y1 = r * tile_size
+                    x2 = x1 + tile_size
+                    y2 = y1 + tile_size
+
+                    if node_id is None:
+                        fill_color = "#222222"
+                    else:
+                        node_details = block_nodes_data.get(str(node_id), {})
+                        template_key = node_details.get('template_key', 'void')
+
+                        mapped_key = self.TEMPLATE_KEY_MAPPING.get(template_key, 'void')
+
+                        node_template_data = self.app.node_repo.get_by_key(mapped_key)
+
+                        if node_template_data:
+                            fill_color = node_template_data.get('color', '#483d8b')
                         else:
-                            node_color = '#000000'
+                            fill_color = '#ff00ff'
 
-                        x1 = c * tile_size
-                        y1 = r * tile_size
-                        x2 = x1 + tile_size
-                        y2 = y1 + tile_size
-
-                        block_canvas.create_rectangle(x1, y1, x2, y2, fill=node_color, outline="")
+                    block_canvas.create_rectangle(x1, y1, x2, y2, fill=fill_color, outline="")
 
             block_label = tk.Label(miniature_frame, text=name, fg="white", bg="#333333", font=self.font)
             block_label.pack()
@@ -114,3 +136,6 @@ class BlocksPanel(BaseLeftPanel):
 
             miniature_frame.bind("<Enter>", lambda e, fr=miniature_frame: fr.config(bg="gray"))
             miniature_frame.bind("<Leave>", lambda e, fr=miniature_frame: fr.config(bg="#333333"))
+
+    def on_miniature_click(self, block_name):
+        self.app.on_block_selected(block_name)

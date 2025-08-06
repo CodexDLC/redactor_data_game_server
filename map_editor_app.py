@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import ttk
 import logging
 from logging import LogRecord
-from typing import Optional
+from typing import Optional, Any
 
 from infrastructure.persistence.json_node_repository import JsonNodeRepository
 from infrastructure.persistence.json_block_repository import JsonBlockRepository
@@ -18,7 +18,6 @@ from core.block_editor.block_editor_service import BlockEditorService
 from infrastructure.ui.tkinter_views.widgets.floating_palette import FloatingPaletteWindow
 from infrastructure.ui.tkinter_views.widgets.log_console_window import LogConsoleWindow
 from infrastructure.ui.tkinter_views.styles import *
-
 
 # Определяем константы на уровне модуля
 MINIATURE_SIZE = 50
@@ -44,7 +43,6 @@ class TextWidgetHandler(logging.Handler):
 class MapEditorApp(tk.Frame):
     """
     Класс редактора карты
-
     """
     def __init__(self, master):
         super().__init__(master, bg=BG_PRIMARY)
@@ -61,8 +59,8 @@ class MapEditorApp(tk.Frame):
         self.property_repo = JsonPropertyRepository()
 
         self.active_brush_node: Optional[dict] = None
-        self.active_brush_block: Optional[dict] = None
         self.log_console_window: Optional[LogConsoleWindow] = None
+        self.current_editor_view: Optional[Any] = None
 
         # --- 2. Построение основного UI ---
         self.toolbar = tk.Frame(self, bg=BG_SECONDARY)
@@ -72,7 +70,7 @@ class MapEditorApp(tk.Frame):
         main_content_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         self.left_panel = UniversalLeftPanel(
-            master=main_content_frame, app=self,
+            master=main_content_frame, app=self, node_repo=self.node_repo,
             block_repo=self.block_repo, location_repo=self.location_repo,
             miniature_size=MINIATURE_SIZE, miniature_padding=MINIATURE_PADDING,
             font=DEFAULT_FONT, frame_width=FRAME_WIDTH
@@ -81,8 +79,6 @@ class MapEditorApp(tk.Frame):
 
         right_area_frame = tk.Frame(main_content_frame, bg=BG_PRIMARY)
         right_area_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        # --- ПАНЕЛЬ-ПОДСКАЗКА ОТСЮДА УДАЛЕНА ---
 
         self.editor_container = tk.Frame(right_area_frame, bg=BG_PRIMARY)
         self.editor_container.pack(fill=tk.BOTH, expand=True)
@@ -121,13 +117,16 @@ class MapEditorApp(tk.Frame):
         self.clear_editor_container()
         tk.Label(self.editor_container, text="Выберите режим в меню сверху", font=("Helvetica", 16), fg=FG_TEXT,
                  bg=BG_PRIMARY).pack(expand=True)
+        self.current_editor_view = None
 
     def show_block_editor(self):
         self.clear_editor_container()
         node_schema = self.schema_repo.get_node_schema()
-        self.current_editor_view = BlockEditorView(self.editor_container, self, node_schema)
-        service = BlockEditorService(view=self.current_editor_view, repository=self.block_repo, node_repo=self.node_repo, app=self)
-        self.current_editor_view.pack(fill=tk.BOTH, expand=True)
+        view = BlockEditorView(self.editor_container, self, node_schema)
+        service = BlockEditorService(view=view, repository=self.block_repo, node_repo=self.node_repo, app=self)
+        view.service = service
+        view.pack(fill=tk.BOTH, expand=True)
+        self.current_editor_view = view
         self.left_panel.show_panel("blocks")
         self.set_status_message("Режим: Редактор Блоков (Тайлов)")
 
@@ -135,6 +134,7 @@ class MapEditorApp(tk.Frame):
         self.clear_editor_container()
         tk.Label(self.editor_container, text="Редактор Объектов (в разработке)", font=("Helvetica", 16), fg=FG_TEXT,
                  bg=BG_PRIMARY).pack(expand=True)
+        self.current_editor_view = None
         self.set_status_message("Режим: Редактор Объектов")
 
     def set_active_brush_node(self, node_data: dict) -> None:
@@ -142,22 +142,6 @@ class MapEditorApp(tk.Frame):
         node_name = node_data.get('display_name', node_data.get('node_key', 'N/A'))
         self.set_status_message(f"Активный нод-кисточка установлен: {node_name}")
         self.master.config(cursor="dot")
-
-    def set_active_brush_block(self, block_data: dict) -> None:
-        """НОВЫЙ МЕТОД: Устанавливает активную кисточку-блок."""
-        self.active_brush_block = block_data
-        block_name = block_data.get('display_name', block_data.get('block_key', 'N/A'))
-        self.set_status_message(f"Активный блок-кисточка установлен: {block_name}")
-        self.master.config(cursor="plus")
-
-    def on_block_selected(self, block_key: str):
-        block_data = self.block_repo.get_by_key(block_key)
-        if block_data:
-            block_data['block_key'] = block_key
-            self.current_editor_view.set_form_data(block_data)
-            self.set_status_message(f"Загружен блок для редактирования: {block_key}")
-        else:
-            self.set_status_message(f"Ошибка: Не удалось найти данные для блока: {block_key}", is_error=True)
 
     def unselect_active_brush_node(self):
         self.active_brush_node = None
@@ -169,10 +153,25 @@ class MapEditorApp(tk.Frame):
 
     def open_palette(self, palette_type: str, x: int, y: int):
         if palette_type == "nodes":
-            nodes_data = self.node_repo.get_all()
-            FloatingPaletteWindow(self, title="Палитра Кирпичиков", app=self, items_data=nodes_data, x=x, y=y)
-        elif palette_type == "blocks":
-            blocks_data = self.block_repo.get_all()
-            nodes_data = self.node_repo.get_all()
-            FloatingPaletteWindow(self, title="Палитра Блоков", app=self, items_data=blocks_data, x=x, y=y,
-                                  palette_type="blocks", node_data_source=nodes_data)
+            items_data = self.node_repo.get_all()
+            FloatingPaletteWindow(self, title="Палитра Кирпичиков", app=self, items_data=items_data, x=x, y=y)
+        # TODO: Добавить логику для других палитр
+
+    def on_block_selected(self, block_name: str):
+        """
+        Метод-обработчик для выбора блока в левой панели.
+        Загружает выбранный блок в редактор.
+        """
+        if self.current_editor_view and isinstance(self.current_editor_view, BlockEditorView):
+            block_data = self.block_repo.get_by_key(block_name)
+            if block_data:
+                # Добавляем ключ блока в данные для отображения
+                block_data['block_key'] = block_name
+                # Обогащаем данные цветами, чтобы они могли быть отображены
+                enriched_data = self.current_editor_view.service._enrich_block_data_with_colors(block_data)
+                self.current_editor_view.set_form_data(enriched_data)
+                self.set_status_message(f"Блок '{block_name}' загружен в редактор.")
+            else:
+                self.set_status_message(f"Ошибка: Блок '{block_name}' не найден в репозитории.", is_error=True)
+        else:
+            self.set_status_message("Пожалуйста, переключитесь на 'Редактор Блоков', чтобы выбрать блок.", is_error=True)

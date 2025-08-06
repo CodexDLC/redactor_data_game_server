@@ -51,33 +51,30 @@ class BlockEditorService:
         self.current_block_key = block_key
         self.app.set_status_message(f"Блок '{block_key}' успешно сохранен.")
 
-        # --- ИСПРАВЛЕНИЕ ЗДЕСЬ: Вызываем обновление панели ---
-        self.app.refresh_block_panel()
-    # -----------------------------------------------
-
     def on_canvas_click(self, row: int, col: int, node_id: int | None) -> None:
         brush_node = self.app.get_active_brush_node()
-        if not brush_node:
-            logging.info("BlockEditorService: Клик без активной кисти. Действий не требуется.")
+        if not brush_node or 'node_key' not in brush_node:
+            logging.info("BlockEditorService: Клик без активной кисти или некорректный формат. Действий не требуется.")
             return
 
         block_data = self.view.get_form_data()
 
+        # --- НОВАЯ ЛОГИКА: ДЕТЕРМИНИРОВАННЫЕ ID ---
+        # ID теперь жестко привязан к координатам. Ширина пока 3.
         width = block_data.get('width', 3)
         local_id = row * width + col
+        # -----------------------------------------
 
-        node_template = self.node_repo.get_by_key(brush_node['node_key'])
-        color = node_template.get('color', '#ff00ff') if node_template else '#ff00ff'
-        block_data['nodes_data'][local_id] = {
-            'template_key': brush_node['node_key'],
-            'color': color
+        block_data['nodes_data'][str(local_id)] = {
+            'template_key': brush_node['node_key']
         }
 
         nodes_structure = [list(r) for r in block_data['nodes_structure']]
-        nodes_structure[row][col] = local_id
+        nodes_structure[row][col] = str(local_id)
         block_data['nodes_structure'] = tuple(tuple(r) for r in nodes_structure)
 
-        self.view.set_form_data(block_data)
+        enriched_block_data = self._enrich_block_data_with_colors(block_data)
+        self.view.set_form_data(enriched_block_data)
         logging.info(f"BlockEditorService: Нод '{brush_node['node_key']}' размещен в [{row},{col}] с ID {local_id}.")
 
     def _enrich_block_data_with_colors(self, block_data: dict) -> dict:
