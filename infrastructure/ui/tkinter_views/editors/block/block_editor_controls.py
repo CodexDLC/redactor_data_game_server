@@ -6,6 +6,7 @@ from typing import Any, Dict
 from ...base_editor_controls import BaseEditorControls
 from ...styles import *
 from ...widgets.context_menu import add_editing_menu
+from ...widgets.tag_input_widget import TagInputWidget
 
 
 class BlockEditorControls(BaseEditorControls):
@@ -18,8 +19,9 @@ class BlockEditorControls(BaseEditorControls):
         # Объявляем переменные до вызова super(), который запускает _build_ui
         self.entry_block_key: tk.Entry | None = None
         self.entry_display_name: tk.Entry | None = None
-        self.entry_block_tags: tk.Entry | None = None
-        self.exits_text_widget: scrolledtext.ScrolledText | None = None  # <--- ДОБАВЛЕНО
+        # --- ИСПРАВЛЕНО: Теперь используем TagInputWidget ---
+        self.tag_input_widget: TagInputWidget | None = None
+        self.exits_text_widget: scrolledtext.ScrolledText | None = None
 
         super().__init__(master, parent_view)
 
@@ -38,18 +40,16 @@ class BlockEditorControls(BaseEditorControls):
         self.entry_display_name.pack(fill=tk.X, pady=(0, 5))
         add_editing_menu(self.entry_display_name)
 
-        tk.Label(main_frame, text="Теги (через запятую):", fg=FG_TEXT, bg=BG_PRIMARY).pack(anchor="w")
-        self.entry_block_tags = tk.Entry(main_frame, bg=BG_SECONDARY, fg=FG_TEXT, insertbackground=FG_TEXT)
-        self.entry_block_tags.pack(fill=tk.X, pady=(0, 5))
-        add_editing_menu(self.entry_block_tags)
+        tk.Label(main_frame, text="Теги:", fg=FG_TEXT, bg=BG_PRIMARY).pack(anchor="w")
+        # --- ИСПРАВЛЕНО: Теперь используем новый виджет ---
+        self.tag_input_widget = TagInputWidget(main_frame, self.parent_view.app.tag_filter_service, "block_tags")
+        self.tag_input_widget.pack(fill=tk.X, pady=(0, 5))
 
-        # --- ДОБАВЛЕНО: Новый фрейм для отображения связей ---
         self._create_exits_panel()
 
-        # Вызываем родительский метод, чтобы создать кнопки "Сохранить", "Удалить" и т.д.
         super()._build_ui()
 
-    def _create_exits_panel(self):  # <--- НОВЫЙ МЕТОД
+    def _create_exits_panel(self):
         """Создает и размещает панель для отображения связей нодов."""
         exits_frame = tk.LabelFrame(self, text="Связи нодов", fg=FG_TEXT, bg=BG_PRIMARY, padx=5, pady=5)
         exits_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5, side=tk.TOP)
@@ -69,17 +69,15 @@ class BlockEditorControls(BaseEditorControls):
             self.entry_display_name.delete(0, tk.END)
             self.entry_display_name.insert(0, block_data.get('display_name', ''))
 
-        if self.entry_block_tags:
+        # --- ИСПРАВЛЕНО: Используем новый виджет для установки тегов ---
+        if self.tag_input_widget:
             tags_list = block_data.get('tags', [])
-            tags_str = ', '.join(tags_list)
-            self.entry_block_tags.delete(0, tk.END)
-            self.entry_block_tags.insert(0, tags_str)
+            self.tag_input_widget.set_tags(tags_list)
 
-        # Обновляем панель связей, если она существует
         if self.exits_text_widget:
             self.set_exits_data(block_data.get('calculated_exits', {}))
 
-    def set_exits_data(self, exits_data: Dict[str, Any]):  # <--- НОВЫЙ МЕТОД
+    def set_exits_data(self, exits_data: Dict[str, Any]):
         """Отображает данные о связях в текстовом виджете."""
         if self.exits_text_widget:
             self.exits_text_widget.config(state=tk.NORMAL)
@@ -94,8 +92,8 @@ class BlockEditorControls(BaseEditorControls):
 
     def get_data(self) -> Dict[str, Any]:
         """Собирает данные из полей ввода."""
-        tags_str = self.entry_block_tags.get().strip() if self.entry_block_tags else ""
-        tags_list = [tag.strip() for tag in tags_str.split(',') if tag.strip()] if tags_str else []
+        # --- ИСПРАВЛЕНО: Получаем теги из нового виджета ---
+        tags_list = self.tag_input_widget.get_tags() if self.tag_input_widget else []
 
         return {
             "block_key": self.entry_block_key.get() if self.entry_block_key else "",

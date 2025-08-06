@@ -158,12 +158,13 @@ class FloatingPaletteWindow(tk.Toplevel):
 
         selected_item_data = data.copy()
 
+        # --- ИСПРАВЛЕНО: Теперь вызываем универсальный метод set_active_brush ---
         if self.palette_type == "nodes":
             selected_item_data['node_key'] = key
-            self.app.set_active_brush_node(selected_item_data)
+            self.app.set_active_brush(selected_item_data, "node")
         elif self.palette_type == "blocks":
             selected_item_data['block_key'] = key
-            self.app.set_active_brush_block(selected_item_data)
+            self.app.set_active_brush(selected_item_data, "block")
 
     def start_move(self, event):
         self._x = event.x

@@ -10,7 +10,8 @@ class JsonBlockRepository(IBlockRepository):
     """
     Конкретная реализация репозитория блоков, работающая с JSON-файлом.
     """
-    _FILE_PATH = "data/blocks.json"
+    # --- ИСПРАВЛЕНО: Новый путь к файлу ---
+    _FILE_PATH = "data/templates/blocks.json"
 
     def __init__(self):
         self._blocks: Dict[str, Any] = {}
@@ -41,13 +42,11 @@ class JsonBlockRepository(IBlockRepository):
         self._save_data()
 
     def delete(self, block_key: str) -> None:
-        """Удаляет блок и сохраняет изменения."""
+        """Удаляет блок по ключу."""
         if block_key in self._blocks:
             del self._blocks[block_key]
             self._save_data()
 
-    # --- ИСПРАВЛЕНИЕ: ДОБАВЛЕН НЕДОСТАЮЩИЙ МЕТОД ---
     def get_by_key(self, block_key: str) -> Dict[str, Any] | None:
         """Возвращает данные одного блока по ключу."""
         return self._blocks.get(block_key)
-    # ---------------------------------------------

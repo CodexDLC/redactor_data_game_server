@@ -1,6 +1,6 @@
 # File: infrastructure/ui/tkinter_views/base_editor_view.py
 import tkinter as tk
-from typing import Any, Callable, Dict
+from typing import Any, Callable
 from .widgets.code_preview_window import CodePreviewWindow
 from .widgets.universal_context_menu import create_universal_context_menu
 from .styles import *
@@ -10,7 +10,7 @@ class BaseEditorView(tk.Frame):
     """
     Базовый класс для всех редакторов.
     Содержит общую трехпанельную компоновку,
-    управление окном предпросмотра кода и контекстным меню.
+    управление окном предпросмотр кода и контекстным меню.
     """
 
     def __init__(self, master, app: Any):
@@ -50,7 +50,7 @@ class BaseEditorView(tk.Frame):
         self.app.open_palette(palette_type, x, y)
 
     def _create_context_menu_for_canvas(self, canvas: tk.Canvas):
-        """Создает и привязывает универсальное контекстное меню к канвасу."""
+        """Создает и привязывает универсальное контекстное меню к canvas."""
         commands = {
             # --- ИСПРАВЛЕНО: Используем правильное имя метода ---
             "unselect_brush": self.app.unselect_active_brush,
@@ -69,7 +69,7 @@ class BaseEditorView(tk.Frame):
 
     def _show_code_preview_window(self, data: dict, title: str):
         """
-        Открывает или обновляет единое окно предпросмотра кода.
+        Открывает или обновляет единое окно предпросмотр кода.
         """
         if self._code_preview_window and self._code_preview_window.winfo_exists():
             self._code_preview_window.update_content(data)

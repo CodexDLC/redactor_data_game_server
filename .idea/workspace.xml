@@ -4,13 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="73ec93af-afc8-4c10-812d-bfe3f817fd17" name="Changes" comment="future: new editor location interface">
-      <change afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/widgets/save_brush_dialog.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/location_editor/location_editor_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/location_editor/location_editor_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/base_editor_view.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/base_editor_view.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/location/location_editor_controls.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/location/location_editor_controls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/location/location_editor_view.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/location/location_editor_view.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/interfaces/ui/i_location_editor_view.py" beforeDir="false" afterPath="$PROJECT_DIR$/interfaces/ui/i_location_editor_view.py" afterDir="false" />
+    <list default="true" id="73ec93af-afc8-4c10-812d-bfe3f817fd17" name="Changes" comment="future + refactoring">
+      <change afterPath="$PROJECT_DIR$/core/tag_filter_service.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/widgets/tag_input_widget.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/block_editor/block_editor_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/block_editor/block_editor_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/infrastructure/persistence/initializer.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/persistence/initializer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_editor_controls.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_editor_controls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/map_editor_app.py" beforeDir="false" afterPath="$PROJECT_DIR$/map_editor_app.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -59,6 +59,12 @@
     "git-widget-placeholder": "feature/location-editor"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\prime\PycharmProjects\redactor_data_game_server\core" />
+      <recent name="C:\Users\prime\PycharmProjects\redactor_data_game_server\data\templates" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="redactor_data_game_server" />
@@ -111,11 +117,38 @@
       <option name="project" value="LOCAL" />
       <updated>1754507374435</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="future: new widget save_brush_dialog.py">
+      <option name="closed" value="true" />
+      <created>1754509721600</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1754509721600</updated>
+    </task>
+    <task id="LOCAL-00003" summary="control 0.2">
+      <option name="closed" value="true" />
+      <created>1754510067326</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1754510067326</updated>
+    </task>
+    <task id="LOCAL-00004" summary="future + refactoring">
+      <option name="closed" value="true" />
+      <created>1754518795855</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1754518795855</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="future: new editor location interface" />
-    <option name="LAST_COMMIT_MESSAGE" value="future: new editor location interface" />
+    <MESSAGE value="future: new widget save_brush_dialog.py" />
+    <MESSAGE value="control 0.2" />
+    <MESSAGE value="future + refactoring" />
+    <option name="LAST_COMMIT_MESSAGE" value="future + refactoring" />
   </component>
 </project>

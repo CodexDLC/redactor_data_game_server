@@ -22,7 +22,7 @@ class JsonTagRepository(ITagRepository):
                 data = json.load(f)
                 # Превращаем каждый список тегов в set для быстрой и удобной работы
                 return {category: set(tags) for category, tags in data.items()}
-        except (FileNotFoundError, json.JSONDecodeError):
+        except (FileNotFound, json.JSONDecodeError):
             logging.warning(f"Файл библиотеки тегов '{self.filepath}' не найден или пуст. Будет создан новый.")
             return {}
 
@@ -43,18 +43,23 @@ class JsonTagRepository(ITagRepository):
 
     def add_tag_to_category(self, category: str, tag: str) -> None:
         """Добавляет новый тег в категорию, если его там еще нет."""
-        # Убираем лишние пробелы и приводим к нижнему регистру для единообразия
         clean_tag = tag.strip().lower()
         if not clean_tag:
             return
 
-        # Получаем текущий set тегов для категории или создаем новый, если категории нет
         tags_set = self.library.setdefault(category, set())
 
-        # Проверяем, изменился ли set. Если да, то сохраняем.
         if clean_tag not in tags_set:
             tags_set.add(clean_tag)
             logging.info(f"Добавлен новый тег '{clean_tag}' в категорию '{category}'. Сохранение библиотеки.")
             self._save()
         else:
             logging.debug(f"Тег '{clean_tag}' уже существует в категории '{category}'. Сохранение не требуется.")
+
+    # --- НОВЫЙ МЕТОД ---
+    def add_tags_to_category(self, category: str, tags: List[str]) -> None:
+        """
+        Добавляет список тегов в указанную категорию.
+        """
+        for tag in tags:
+            self.add_tag_to_category(category, tag)

@@ -1,7 +1,9 @@
 {
     "node_tags": [
         "flor",
-        "test",
         "wall"
+    ],
+    "block_tags": [
+        "void"
     ]
 }

@@ -13,10 +13,8 @@ class BlockEditorView(BaseEditorView, IBlockEditorView):
     Упрощенный View-слой редактора блоков.
     Работает с простой панелью Controls и не занимается свойствами нодов.
     """
-
-    def __init__(self, master, app: Any, node_schema: Dict[str, Any]):
+    def __init__(self, master, app: Any):
         super().__init__(master, app)
-        self.node_schema = node_schema
         self.service: Optional[Any] = None
         self._block_data: dict = self.get_initial_data()
         self._on_canvas_click_callback: Callable | None = None
@@ -29,11 +27,9 @@ class BlockEditorView(BaseEditorView, IBlockEditorView):
         self._set_initial_data()
 
     def _setup_ui(self):
-        # --- ДОБАВЛЕНА ПАНЕЛЬ-ПОДСКАЗКА ---
         hint_text = "Подсказка: ПКМ по холсту для вызова 'Палитры Кирпичиков'"
         hint_bar = tk.Label(self, text=hint_text, fg=FG_TEXT, bg=BG_SECONDARY, anchor='w', padx=10)
         hint_bar.pack(fill=tk.X, side=tk.TOP, padx=5, pady=(0, 5))
-        # ------------------------------------
 
         self.three_panel_layout()
 

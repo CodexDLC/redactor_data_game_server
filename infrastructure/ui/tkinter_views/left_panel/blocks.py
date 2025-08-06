@@ -118,7 +118,8 @@ class BlocksPanel(BaseLeftPanel):
 
                         mapped_key = self.TEMPLATE_KEY_MAPPING.get(template_key, 'void')
 
-                        node_template_data = self.app.node_repo.get_by_key(mapped_key)
+                        # --- ИСПРАВЛЕНО: Теперь получаем репозиторий через self.app.repos ---
+                        node_template_data = self.app.repos.node.get_by_key(mapped_key)
 
                         if node_template_data:
                             fill_color = node_template_data.get('color', '#483d8b')
