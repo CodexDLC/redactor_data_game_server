@@ -52,25 +52,26 @@ class BlockEditorService:
         self.app.set_status_message(f"Блок '{block_key}' успешно сохранен.")
 
     def on_canvas_click(self, row: int, col: int, node_id: int | None) -> None:
-        brush_node = self.app.get_active_brush_node()
-        if not brush_node or 'node_key' not in brush_node:
-            logging.info("BlockEditorService: Клик без активной кисти или некорректный формат. Действий не требуется.")
+        # --- ИСПРАВЛЕНО: Используем новую систему кисточек ---
+        active_brush_info = self.app.get_active_brush()
+
+        # Проверяем, что кисточка выбрана и что это кисточка-нод
+        if not active_brush_info or active_brush_info[0] != "node":
+            logging.info("BlockEditorService: Клик без активной кисти-нода.")
             return
 
+        brush_node = active_brush_info[1]
         block_data = self.view.get_form_data()
 
-        # --- НОВАЯ ЛОГИКА: ДЕТЕРМИНИРОВАННЫЕ ID ---
-        # ID теперь жестко привязан к координатам. Ширина пока 3.
         width = block_data.get('width', 3)
         local_id = row * width + col
-        # -----------------------------------------
 
-        block_data['nodes_data'][str(local_id)] = {
+        block_data['nodes_data'][local_id] = {
             'template_key': brush_node['node_key']
         }
 
         nodes_structure = [list(r) for r in block_data['nodes_structure']]
-        nodes_structure[row][col] = str(local_id)
+        nodes_structure[row][col] = local_id
         block_data['nodes_structure'] = tuple(tuple(r) for r in nodes_structure)
 
         enriched_block_data = self._enrich_block_data_with_colors(block_data)

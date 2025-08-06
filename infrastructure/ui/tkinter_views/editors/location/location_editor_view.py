@@ -19,8 +19,9 @@ class LocationEditorView(BaseEditorView, ILocationEditorView):
         self.controls: Optional[LocationEditorControls] = None
         self.location_canvas: Optional[tk.Canvas] = None
         self.location_data: Optional[Dict[str, Any]] = None
+        self.service: Optional[Any] = None  # Добавляем ссылку на сервис
 
-        # --- 1. ПЕРЕМЕННЫЕ ДЛЯ НАВИГАЦИИ ---
+        # --- Переменные для навигации ---
         self.base_node_size = 32
         self.zoom_level = 1.0
         self.pan_offset_x = 0
@@ -32,11 +33,13 @@ class LocationEditorView(BaseEditorView, ILocationEditorView):
         self.node_templates = self.node_repo.get_all()
 
         self._setup_ui()
-        # --- 2. ПРИВЯЗКА СОБЫТИЙ МЫШИ ---
+        # --- Привязка событий мыши ---
         self.location_canvas.bind("<Configure>", lambda e: self.draw_canvas())
         self.location_canvas.bind("<MouseWheel>", self._on_mouse_wheel)
-        self.location_canvas.bind("<ButtonPress-2>", self._on_pan_start)  # Нажатие колесика
-        self.location_canvas.bind("<B2-Motion>", self._on_pan_move)  # Движение с зажатым колесиком
+        self.location_canvas.bind("<ButtonPress-2>", self._on_pan_start)
+        self.location_canvas.bind("<B2-Motion>", self._on_pan_move)
+        # --- 1. ПРИВЯЗЫВАЕМ КЛИК ЛЕВОЙ КНОПКОЙ ---
+        self.location_canvas.bind("<Button-1>", self._on_canvas_left_click)
 
     def _setup_ui(self):
         """Создает базовую трехпанельную структуру для редактора."""
@@ -48,6 +51,29 @@ class LocationEditorView(BaseEditorView, ILocationEditorView):
         self._create_context_menu_for_canvas(self.location_canvas)
         self.bind_show_code_command(self._show_code_preview_window, "Код данных локации")
 
+    # --- 2. НОВЫЙ МЕТОД-ОБРАБОТЧИК КЛИКА ---
+    def _on_canvas_left_click(self, event):
+        """Обрабатывает клик левой кнопкой мыши по холсту."""
+        if not self.service: return
+
+        node_size = self.base_node_size * self.zoom_level
+        if node_size < 1: return
+
+        # Рассчитываем смещение для центрирования карты
+        canvas_width = self.location_canvas.winfo_width()
+        canvas_height = self.location_canvas.winfo_height()
+        x_offset = (canvas_width / 2) - (4.5 * node_size) + self.pan_offset_x
+        y_offset = (canvas_height / 2) - (4.5 * node_size) + self.pan_offset_y
+
+        # Преобразуем координаты клика (event.x, event.y) в координаты ноды в сетке
+        col = int((event.x - x_offset) / node_size)
+        row = int((event.y - y_offset) / node_size)
+
+        # Проверяем, что клик был внутри сетки 9x9
+        if 0 <= row < 9 and 0 <= col < 9:
+            # Передаем координаты в сервис для дальнейшей обработки
+            self.service.on_node_selected(row, col)
+
     def _on_mouse_wheel(self, event):
         """Обрабатывает прокрутку колесика мыши для изменения масштаба."""
         if event.delta > 0:
@@ -57,7 +83,6 @@ class LocationEditorView(BaseEditorView, ILocationEditorView):
         self.zoom_level = max(0.1, min(self.zoom_level, 5.0))
         self.draw_canvas()
 
-    # --- 3. НОВЫЕ МЕТОДЫ ДЛЯ ПЕРЕМЕЩЕНИЯ ---
     def _on_pan_start(self, event):
         """Запоминает начальную точку при зажатии колесика мыши."""
         self._pan_start_x = event.x
@@ -67,29 +92,21 @@ class LocationEditorView(BaseEditorView, ILocationEditorView):
         """Вычисляет смещение и перерисовывает холст при движении мыши."""
         dx = event.x - self._pan_start_x
         dy = event.y - self._pan_start_y
-
         self.pan_offset_x += dx
         self.pan_offset_y += dy
-
         self._pan_start_x = event.x
         self._pan_start_y = event.y
-
         self.draw_canvas()
 
     def draw_canvas(self):
         """Отрисовывает всю локацию на холсте с учетом смещения и масштаба."""
-        if not self.location_canvas or not self.location_data:
-            return
-
+        if not self.location_canvas or not self.location_data: return
         self.location_canvas.delete("all")
-
         node_size = self.base_node_size * self.zoom_level
         if node_size < 1: return
 
-        # --- 4. УЧИТЫВАЕМ СМЕЩЕНИЕ ПРИ ОТРИСОВКЕ ---
         canvas_width = self.location_canvas.winfo_width()
         canvas_height = self.location_canvas.winfo_height()
-        # Центрируем карту и добавляем смещение от панорамирования
         x_offset = (canvas_width / 2) - (4.5 * node_size) + self.pan_offset_x
         y_offset = (canvas_height / 2) - (4.5 * node_size) + self.pan_offset_y
 
@@ -99,13 +116,13 @@ class LocationEditorView(BaseEditorView, ILocationEditorView):
 
         for block_row, block_cols in enumerate(module_structure):
             for block_col, block_idx in enumerate(block_cols):
-                block = blocks_data.get(block_idx, {})
+                block = blocks_data.get(str(block_idx), {})  # Используем str() для ключей JSON
                 nodes_structure = block.get("nodes_structure", [])
                 nodes_data = block.get("nodes_data", {})
 
                 for node_row, node_cols in enumerate(nodes_structure):
                     for node_col, node_idx in enumerate(node_cols):
-                        node = nodes_data.get(node_idx, {})
+                        node = nodes_data.get(str(node_idx), {})  # Используем str() для ключей JSON
                         template_key = node.get("template_key", "void")
 
                         node_template = self.node_templates.get(template_key, {})
@@ -122,7 +139,6 @@ class LocationEditorView(BaseEditorView, ILocationEditorView):
                         self.location_canvas.create_rectangle(x1, y1, x2, y2, fill=fill_color, outline=BG_CANVAS)
 
     def set_form_data(self, data: Dict[str, Any]):
-        """Сохраняет данные локации и инициирует перерисовку."""
         self.location_data = data
         self.draw_canvas()
 
@@ -134,4 +150,5 @@ class LocationEditorView(BaseEditorView, ILocationEditorView):
         self.draw_canvas()
 
     def bind_canvas_click(self, command: Callable[[Any], None]) -> None:
-        self.location_canvas.bind("<Button-1>", command)
+        # Этот метод больше не нужен, так как мы напрямую вызываем сервис
+        pass

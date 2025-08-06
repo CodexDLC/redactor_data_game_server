@@ -2,6 +2,8 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Callable
 
+# --- СТРОКА НИЖЕ БЫЛА ОШИБКОЙ И УДАЛЕНА ---
+# from interfaces.ui.i_location_editor_view import ILocationEditorView
 
 class ILocationEditorView(ABC):
     """

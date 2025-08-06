@@ -16,7 +16,6 @@ from infrastructure.ui.tkinter_views.left_panel.universal import UniversalLeftPa
 from infrastructure.ui.tkinter_views.editors.block.block_editor_view import BlockEditorView
 from infrastructure.ui.tkinter_views.editors.location.location_editor_view import LocationEditorView
 from core.block_editor.block_editor_service import BlockEditorService
-# --- 1. НОВЫЙ ИМПОРТ ---
 from core.location_editor.location_editor_service import LocationEditorService
 from infrastructure.ui.tkinter_views.widgets.floating_palette import FloatingPaletteWindow
 from infrastructure.ui.tkinter_views.widgets.log_console_window import LogConsoleWindow
@@ -61,7 +60,9 @@ class MapEditorApp(tk.Frame):
         self.tag_repo = JsonTagRepository()
         self.property_repo = JsonPropertyRepository()
 
-        self.active_brush_node: Optional[dict] = None
+        # --- ИЗМЕНЕНО: Добавляем кисточку для блоков ---
+        self.active_node_brush: Optional[dict] = None
+        self.active_block_brush: Optional[dict] = None
         self.log_console_window: Optional[LogConsoleWindow] = None
         self.current_editor_view: Optional[Any] = None
 
@@ -137,40 +138,63 @@ class MapEditorApp(tk.Frame):
         """Отображает редактор локаций."""
         self.clear_editor_container()
         view = LocationEditorView(self.editor_container, self)
-        # --- 2. СОЗДАЕМ И СВЯЗЫВАЕМ СЕРВИС ---
         service = LocationEditorService(view=view, app=self)
         view.service = service
         view.pack(fill=tk.BOTH, expand=True)
         self.current_editor_view = view
-        # TODO: self.left_panel.show_panel("modules")
+        self.left_panel.show_panel("blocks") # Показываем панель с блоками
         self.set_status_message("Режим: Редактор Локаций")
 
-    def set_active_brush_node(self, node_data: dict) -> None:
-        self.active_brush_node = node_data
-        node_name = node_data.get('display_name', node_data.get('node_key', 'N/A'))
-        self.set_status_message(f"Активный нод-кисточка установлен: {node_name}")
+    # --- ИЗМЕНЕНО: Методы для кисточек ---
+    def set_active_brush(self, brush_data: dict, brush_type: str):
+        """Устанавливает активную кисточку (нод или блок)."""
+        if brush_type == "node":
+            self.active_node_brush = brush_data
+            self.active_block_brush = None
+            name = brush_data.get('display_name', brush_data.get('node_key', 'N/A'))
+            self.set_status_message(f"Кисточка (нод): {name}")
+        elif brush_type == "block":
+            self.active_block_brush = brush_data
+            self.active_node_brush = None
+            name = brush_data.get('display_name', brush_data.get('block_key', 'N/A'))
+            self.set_status_message(f"Кисточка (блок): {name}")
         self.master.config(cursor="dot")
 
-    def unselect_active_brush_node(self):
-        self.active_brush_node = None
+    def get_active_brush(self) -> Optional[tuple[str, dict]]:
+        """Возвращает активную кисточку и ее тип."""
+        if self.active_block_brush:
+            return "block", self.active_block_brush
+        if self.active_node_brush:
+            return "node", self.active_node_brush
+        return None
+
+    def unselect_active_brush(self):
+        self.active_node_brush = None
+        self.active_block_brush = None
         self.set_status_message("Активная кисточка сброшена.")
         self.master.config(cursor="")
-
-    def get_active_brush_node(self) -> Optional[dict]:
-        return self.active_brush_node
 
     def open_palette(self, palette_type: str, x: int, y: int):
         if palette_type == "nodes":
             items_data = self.node_repo.get_all()
-            FloatingPaletteWindow(self, title="Палитра Кирпичиков", app=self, items_data=items_data, x=x, y=y)
+            FloatingPaletteWindow(self, title="Палитра Нодов", app=self, items_data=items_data, x=x, y=y)
         # TODO: Добавить логику для других палитр
 
     def on_block_selected(self, block_name: str):
         """
         Метод-обработчик для выбора блока в левой панели.
-        Загружает выбранный блок в редактор.
+        Либо загружает блок в редактор, либо устанавливает его как кисточку.
         """
-        if self.current_editor_view and isinstance(self.current_editor_view, BlockEditorView):
+        # --- ИЗМЕНЕНО: Добавлена логика для Редактора Локаций ---
+        if self.current_editor_view and isinstance(self.current_editor_view, LocationEditorView):
+            block_data = self.block_repo.get_by_key(block_name)
+            if block_data:
+                block_data['block_key'] = block_name
+                self.set_active_brush(block_data, "block")
+            else:
+                self.set_status_message(f"Ошибка: Блок '{block_name}' не найден.", is_error=True)
+
+        elif self.current_editor_view and isinstance(self.current_editor_view, BlockEditorView):
             block_data = self.block_repo.get_by_key(block_name)
             if block_data:
                 block_data['block_key'] = block_name
@@ -178,7 +202,6 @@ class MapEditorApp(tk.Frame):
                 self.current_editor_view.set_form_data(enriched_data)
                 self.set_status_message(f"Блок '{block_name}' загружен в редактор.")
             else:
-                self.set_status_message(f"Ошибка: Блок '{block_name}' не найден в репозитории.", is_error=True)
+                self.set_status_message(f"Ошибка: Блок '{block_name}' не найден.", is_error=True)
         else:
-            self.set_status_message("Пожалуйста, переключитесь на 'Редактор Блоков', чтобы выбрать блок.", is_error=True)
-
+            self.set_status_message("Неизвестный режим редактора для выбора блока.", is_error=True)
