@@ -14,7 +14,10 @@ from infrastructure.persistence.json_tag_repository import JsonTagRepository
 
 from infrastructure.ui.tkinter_views.left_panel.universal import UniversalLeftPanel
 from infrastructure.ui.tkinter_views.editors.block.block_editor_view import BlockEditorView
+from infrastructure.ui.tkinter_views.editors.location.location_editor_view import LocationEditorView
 from core.block_editor.block_editor_service import BlockEditorService
+# --- 1. НОВЫЙ ИМПОРТ ---
+from core.location_editor.location_editor_service import LocationEditorService
 from infrastructure.ui.tkinter_views.widgets.floating_palette import FloatingPaletteWindow
 from infrastructure.ui.tkinter_views.widgets.log_console_window import LogConsoleWindow
 from infrastructure.ui.tkinter_views.styles import *
@@ -94,7 +97,7 @@ class MapEditorApp(tk.Frame):
     def _create_toolbar(self):
         tk.Button(self.toolbar, text="Редактор Блоков", command=self.show_block_editor, bg=BG_PRIMARY,
                   fg=FG_TEXT).pack(side=tk.LEFT, padx=5, pady=2)
-        tk.Button(self.toolbar, text="Редактор Объектов", command=self.show_object_editor, bg=BG_PRIMARY,
+        tk.Button(self.toolbar, text="Редактор Локаций", command=self.show_location_editor, bg=BG_PRIMARY,
                   fg=FG_TEXT).pack(side=tk.LEFT, padx=5, pady=2)
         ttk.Separator(self.toolbar, orient='vertical').pack(side=tk.LEFT, fill='y', padx=10, pady=2)
         tk.Button(self.toolbar, text="Открыть консоль логов", command=self.show_log_console, bg=BG_PRIMARY,
@@ -130,12 +133,17 @@ class MapEditorApp(tk.Frame):
         self.left_panel.show_panel("blocks")
         self.set_status_message("Режим: Редактор Блоков (Тайлов)")
 
-    def show_object_editor(self):
+    def show_location_editor(self):
+        """Отображает редактор локаций."""
         self.clear_editor_container()
-        tk.Label(self.editor_container, text="Редактор Объектов (в разработке)", font=("Helvetica", 16), fg=FG_TEXT,
-                 bg=BG_PRIMARY).pack(expand=True)
-        self.current_editor_view = None
-        self.set_status_message("Режим: Редактор Объектов")
+        view = LocationEditorView(self.editor_container, self)
+        # --- 2. СОЗДАЕМ И СВЯЗЫВАЕМ СЕРВИС ---
+        service = LocationEditorService(view=view, app=self)
+        view.service = service
+        view.pack(fill=tk.BOTH, expand=True)
+        self.current_editor_view = view
+        # TODO: self.left_panel.show_panel("modules")
+        self.set_status_message("Режим: Редактор Локаций")
 
     def set_active_brush_node(self, node_data: dict) -> None:
         self.active_brush_node = node_data
@@ -165,9 +173,7 @@ class MapEditorApp(tk.Frame):
         if self.current_editor_view and isinstance(self.current_editor_view, BlockEditorView):
             block_data = self.block_repo.get_by_key(block_name)
             if block_data:
-                # Добавляем ключ блока в данные для отображения
                 block_data['block_key'] = block_name
-                # Обогащаем данные цветами, чтобы они могли быть отображены
                 enriched_data = self.current_editor_view.service._enrich_block_data_with_colors(block_data)
                 self.current_editor_view.set_form_data(enriched_data)
                 self.set_status_message(f"Блок '{block_name}' загружен в редактор.")
@@ -175,3 +181,4 @@ class MapEditorApp(tk.Frame):
                 self.set_status_message(f"Ошибка: Блок '{block_name}' не найден в репозитории.", is_error=True)
         else:
             self.set_status_message("Пожалуйста, переключитесь на 'Редактор Блоков', чтобы выбрать блок.", is_error=True)
+

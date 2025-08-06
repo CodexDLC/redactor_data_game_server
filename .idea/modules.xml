@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/generator_map.iml" filepath="$PROJECT_DIR$/.idea/generator_map.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/redactor_data_game_server.iml" filepath="$PROJECT_DIR$/.idea/redactor_data_game_server.iml" />
     </modules>
   </component>
 </project>
