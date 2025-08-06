@@ -11,7 +11,8 @@ class JsonNodeRepository(INodeRepository):
     Конкретная реализация репозитория нод, работающая с JSON-файлом.
     Путь к файлу теперь задан внутри класса.
     """
-    _FILE_PATH = "data/nodes.json"
+    # --- ИСПРАВЛЕНО: Новый путь к файлу ---
+    _FILE_PATH = "data/templates/nodes.json"
 
     def __init__(self):
         self._nodes: Dict[str, Any] = {}

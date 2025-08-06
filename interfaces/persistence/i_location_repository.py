@@ -1,21 +1,39 @@
-# File: interfaces/persistence/i_room_repository.py (version 0.1)
+# File: interfaces/persistence/i_location_repository.py
 from abc import ABC, abstractmethod
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 class ILocationRepository(ABC):
-    """Интерфейс для репозитория, управляющего хранением комнат (9x9)."""
+    """
+    Интерфейс для репозитория, управляющего хранением комнат/локаций в файловой системе.
+    Теперь работает с отдельными файлами для блоков, объектов и карты.
+    """
 
     @abstractmethod
-    def get_all(self) -> Dict[str, Any]:
-        """Возвращает словарь со всеми комнатами."""
+    def get_all_location_names(self) -> List[str]:
+        """
+        Возвращает список имен всех доступных локаций (имен папок).
+        """
         pass
 
     @abstractmethod
-    def upsert(self, room_key: str, room_data: Dict[str, Any]) -> None:
-        """Обновляет или создает комнату."""
+    def load_location(self, location_key: str) -> Dict[str, Any] | None:
+        """
+        Загружает полную структуру локации из ее папки по ключу (имени папки).
+        Возвращает None, если локация не найдена.
+        """
         pass
 
     @abstractmethod
-    def delete(self, room_key: str) -> None:
-        """Удаляет комнату по ключу."""
+    def save_location(self, location_key: str, data: Dict[str, Any]) -> None:
+        """
+        Сохраняет полную структуру локации в ее папку.
+        Раскладывает данные на несколько файлов: blocks, objects, map.
+        """
+        pass
+
+    @abstractmethod
+    def delete_location(self, location_key: str) -> None:
+        """
+        Удаляет папку локации и все ее содержимое.
+        """
         pass

@@ -23,10 +23,10 @@ class BaseEditorControls(tk.Frame):
 
     def _build_ui(self):
         # Эта зона будет заполнена в дочерних классах
-        # --- Зона 1: Основные Свойства ---
-        # --- Зона 2: Настраиваемые Свойства ---
+        # Зона 1: Основные Свойства
+        # Зона 2: Настраиваемые Свойства
 
-        # --- Зона 3: Действия (общая для всех) ---
+        # Зона 3: Действия (общая для всех)
         actions_frame = tk.LabelFrame(self, text="Действия", fg=FG_TEXT, bg=BG_PRIMARY, padx=5, pady=5)
         actions_frame.pack(fill=tk.X, padx=5, pady=5, side=tk.BOTTOM)
 

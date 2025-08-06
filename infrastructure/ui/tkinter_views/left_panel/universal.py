@@ -3,27 +3,31 @@ import tkinter as tk
 from interfaces.persistence.i_node_repository import INodeRepository
 from interfaces.persistence.i_block_repository import IBlockRepository
 from interfaces.persistence.i_location_repository import ILocationRepository
+from interfaces.persistence.i_module_repository import IModuleRepository
 
 from .blocks import BlocksPanel
-from .locations import LocationsPanel
+from .locations import ModulesPanel
+
 from .map_tools import MapToolsPanel
 
 
 class UniversalLeftPanel(tk.Frame):
     def __init__(self, master, app, node_repo: INodeRepository, block_repo: IBlockRepository,
-                 location_repo: ILocationRepository, miniature_size, miniature_padding, font, frame_width):
+                 location_repo: ILocationRepository, module_repo: IModuleRepository,
+                 miniature_size, miniature_padding, font, frame_width):
         super().__init__(master, bg="#333333")
         self.app = app
         self.node_repo = node_repo
         self.block_repo = block_repo
         self.location_repo = location_repo
+        self.module_repo = module_repo # --- ДОБАВЛЕНО: Репозиторий модулей ---
         self.miniature_size = miniature_size
         self.miniature_padding = miniature_padding
         self.font = font
         self.frame_width = frame_width
 
         self.blocks_panel = None
-        self.locations_panel = None
+        self.modules_panel = None # --- ИСПРАВЛЕНО: Меняем название ---
 
         self.setup_ui()
         self.show_panel("blocks")
@@ -44,11 +48,11 @@ class UniversalLeftPanel(tk.Frame):
     def create_top_buttons(self):
         self.blocks_button = tk.Button(self.top_buttons_frame, text="Тайлы (3x3)",
                                        command=lambda: self.show_panel("blocks"))
-        self.locations_button = tk.Button(self.top_buttons_frame, text="Объекты",
-                                          command=lambda: self.show_panel("locations"))
+        self.modules_button = tk.Button(self.top_buttons_frame, text="Модули", # --- ИСПРАВЛЕНО: Меняем текст кнопки ---
+                                          command=lambda: self.show_panel("modules")) # --- ИСПРАВЛЕНО: Меняем команду ---
 
         self.blocks_button.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=2)
-        self.locations_button.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=2)
+        self.modules_button.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=2)
 
     def show_panel(self, panel_name):
         for widget in self.top_content_frame.winfo_children():
@@ -61,10 +65,10 @@ class UniversalLeftPanel(tk.Frame):
                                             self.font, self.frame_width)
             self.blocks_panel.pack(fill=tk.BOTH, expand=True)
 
-        elif panel_name == "locations":
-            self.top_content_frame.config(text="Объекты")
-            self.locations_panel = LocationsPanel(self.top_content_frame, self.app,
-                                                  self.location_repo, self.block_repo,
+        elif panel_name == "modules": # --- ИСПРАВЛЕНО: Меняем имя панели ---
+            self.top_content_frame.config(text="Модули")
+            self.modules_panel = ModulesPanel(self.top_content_frame, self.app,
+                                                  self.module_repo, self.block_repo, self.node_repo,
                                                   self.miniature_size, self.miniature_padding,
                                                   self.font, self.frame_width)
-            self.locations_panel.pack(fill=tk.BOTH, expand=True)
+            self.modules_panel.pack(fill=tk.BOTH, expand=True)

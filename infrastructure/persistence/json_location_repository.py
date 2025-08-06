@@ -1,51 +1,72 @@
-# File: infrastructure/persistence/json_location_repository.py (version 0.1)
+# File: infrastructure/persistence/json_location_repository.py
 import json
 import os
-from typing import Dict, Any
-
+import shutil
+from typing import Dict, Any, Optional, List
 
 from interfaces.persistence.i_location_repository import ILocationRepository
 
 
-# Пока используем IBlockRepository как шаблон. В будущем может понадобиться отдельный интерфейс.
-
-
 class JsonLocationRepository(ILocationRepository):
     """
-    Конкретная реализация репозитория комнат, работающая с JSON-файлом.
+    Конкретная реализация репозитория, работающая с файловой системой.
+    Каждая локация хранится в отдельной папке с тремя файлами.
     """
-    _FILE_PATH = "data/location.json"
+    _BASE_DIR = "data/locations/"
+    _BLOCKS_FILE = "blocks.json"
+    _OBJECTS_FILE = "objects.json"
+    _MAP_FILE = "map.json"
 
-    def __init__(self):
-        self._rooms: Dict[str, Any] = {}
-        self._load_data()
+    def _get_location_path(self, location_key: str) -> str:
+        """Возвращает полный путь к папке локации."""
+        return os.path.join(self._BASE_DIR, location_key)
 
-    def _load_data(self) -> None:
-        """Загружает данные из файла в память."""
+    def get_all_location_names(self) -> List[str]:
+        """Возвращает список имен всех доступных локаций (имен папок)."""
+        if not os.path.exists(self._BASE_DIR):
+            return []
+        return [name for name in os.listdir(self._BASE_DIR)
+                if os.path.isdir(os.path.join(self._BASE_DIR, name))]
+
+    def load_location(self, location_key: str) -> Optional[Dict[str, Any]]:
+        """
+        Загружает полную структуру локации из ее папки по ключу.
+        """
+        location_path = self._get_location_path(location_key)
+        if not os.path.exists(location_path):
+            return None
+
+        location_data = {}
         try:
-            if os.path.exists(self._FILE_PATH):
-                with open(self._FILE_PATH, 'r', encoding='utf-8') as f:
-                    self._rooms = json.load(f)
+            with open(os.path.join(location_path, self._BLOCKS_FILE), 'r', encoding='utf-8') as f:
+                location_data['blocks_data'] = json.load(f)
+            with open(os.path.join(location_path, self._OBJECTS_FILE), 'r', encoding='utf-8') as f:
+                location_data['objects_data'] = json.load(f)
+            with open(os.path.join(location_path, self._MAP_FILE), 'r', encoding='utf-8') as f:
+                location_data['map_data'] = json.load(f)
         except (FileNotFoundError, json.JSONDecodeError):
-            self._rooms = {}
+            return None
 
-    def _save_data(self) -> None:
-        """Сохраняет данные из памяти в файл."""
-        os.makedirs(os.path.dirname(self._FILE_PATH), exist_ok=True)
-        with open(self._FILE_PATH, 'w', encoding='utf-8') as f:
-            json.dump(self._rooms, f, indent=4, ensure_ascii=False)
+        return location_data
 
-    def get_all(self) -> Dict[str, Any]:
-        """Возвращает копию всех комнат."""
-        return self._rooms.copy()
+    def save_location(self, location_key: str, data: Dict[str, Any]) -> None:
+        """
+        Сохраняет полную структуру локации в ее папку.
+        """
+        location_path = self._get_location_path(location_key)
+        os.makedirs(location_path, exist_ok=True)
 
-    def upsert(self, room_key: str, room_data: Dict[str, Any]) -> None:
-        """Обновляет или создает комнату."""
-        self._rooms[room_key] = room_data
-        self._save_data()
+        with open(os.path.join(location_path, self._BLOCKS_FILE), 'w', encoding='utf-8') as f:
+            json.dump(data.get('blocks_data', {}), f, indent=4, ensure_ascii=False)
+        with open(os.path.join(location_path, self._OBJECTS_FILE), 'w', encoding='utf-8') as f:
+            json.dump(data.get('objects_data', {}), f, indent=4, ensure_ascii=False)
+        with open(os.path.join(location_path, self._MAP_FILE), 'w', encoding='utf-8') as f:
+            json.dump(data.get('map_data', {}), f, indent=4, ensure_ascii=False)
 
-    def delete(self, room_key: str) -> None:
-        """Удаляет комнату по ключу."""
-        if room_key in self._rooms:
-            del self._rooms[room_key]
-            self._save_data()
+    def delete_location(self, location_key: str) -> None:
+        """
+        Удаляет папку локации и все ее содержимое.
+        """
+        location_path = self._get_location_path(location_key)
+        if os.path.exists(location_path):
+            shutil.rmtree(location_path)

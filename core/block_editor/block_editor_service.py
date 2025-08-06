@@ -47,15 +47,16 @@ class BlockEditorService:
             'calculated_exits': all_exits
         }
 
+        # --- ДОБАВЛЕНО: Сохраняем теги в репозитории ---
+        self.app.repos.tag.add_tags_to_category('block_tags', block_data_to_save.get('tags', []))
+
         self.repository.upsert(block_key, block_data_to_save)
         self.current_block_key = block_key
         self.app.set_status_message(f"Блок '{block_key}' успешно сохранен.")
 
     def on_canvas_click(self, row: int, col: int, node_id: int | None) -> None:
-        # --- ИСПРАВЛЕНО: Используем новую систему кисточек ---
         active_brush_info = self.app.get_active_brush()
 
-        # Проверяем, что кисточка выбрана и что это кисточка-нод
         if not active_brush_info or active_brush_info[0] != "node":
             logging.info("BlockEditorService: Клик без активной кисти-нода.")
             return
@@ -66,17 +67,27 @@ class BlockEditorService:
         width = block_data.get('width', 3)
         local_id = row * width + col
 
-        block_data['nodes_data'][local_id] = {
+        local_id_str = str(local_id)
+
+        block_data['nodes_data'][local_id_str] = {
             'template_key': brush_node['node_key']
         }
 
         nodes_structure = [list(r) for r in block_data['nodes_structure']]
-        nodes_structure[row][col] = local_id
+        nodes_structure[row][col] = local_id_str
         block_data['nodes_structure'] = tuple(tuple(r) for r in nodes_structure)
 
-        enriched_block_data = self._enrich_block_data_with_colors(block_data)
-        self.view.set_form_data(enriched_block_data)
-        logging.info(f"BlockEditorService: Нод '{brush_node['node_key']}' размещен в [{row},{col}] с ID {local_id}.")
+        self.enrich_data_with_colors(block_data)
+        self.view.set_form_data(block_data)
+
+        logging.info(
+            f"BlockEditorService: Нод '{brush_node['node_key']}' размещен в [{row},{col}] с ID {local_id_str}.")
+
+    def enrich_data_with_colors(self, block_data: dict) -> None:
+        """
+        Публичный метод для обогащения данных блока цветами.
+        """
+        self._enrich_block_data_with_colors(block_data)
 
     def _enrich_block_data_with_colors(self, block_data: dict) -> dict:
         for node_id, node_details in block_data.get('nodes_data', {}).items():
