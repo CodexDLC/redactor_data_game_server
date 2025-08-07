@@ -4,20 +4,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="73ec93af-afc8-4c10-812d-bfe3f817fd17" name="Changes" comment="fix: delete block">
-      <change afterPath="$PROJECT_DIR$/core/location_editor/location_editor_helpers.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/base_actions_panel.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/base_editor_body.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/base_properties_panel.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_actions_panel.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_editor_body.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_properties_panel.py" afterDir="false" />
+    <list default="true" id="73ec93af-afc8-4c10-812d-bfe3f817fd17" name="Changes" comment="doc: readme">
+      <change afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_gallery_panel.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/location_editor/location_editor_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/location_editor/location_editor_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/block_editor/block_editor_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/block_editor/block_editor_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/editor_initializer.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/editor_initializer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data/templates/blocks.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/templates/blocks.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/base_editor_controls.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/base_editor_controls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/location/location_editor_controls.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/location/location_editor_controls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/location/location_editor_view.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/location/location_editor_view.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/base_actions_panel.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/base_actions_panel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/base_editor_body.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/base_editor_body.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_actions_panel.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_actions_panel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_editor.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_editor_body.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_editor_body.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_editor_controls.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_editor_view.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_properties_panel.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_properties_panel.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/map_editor_app.py" beforeDir="false" afterPath="$PROJECT_DIR$/map_editor_app.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -61,16 +61,16 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.main.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "future/location__editor"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\prime\PycharmProjects\redactor_data_game_server\core" />
@@ -161,15 +161,7 @@
       <option name="project" value="LOCAL" />
       <updated>1754521599778</updated>
     </task>
-    <task id="LOCAL-00006" summary="fix: delete block">
-      <option name="closed" value="true" />
-      <created>1754552417125</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1754552417125</updated>
-    </task>
-    <option name="localTasksCounter" value="7" />
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -178,7 +170,6 @@
     <MESSAGE value="control 0.2" />
     <MESSAGE value="future + refactoring" />
     <MESSAGE value="doc: readme" />
-    <MESSAGE value="fix: delete block" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: delete block" />
+    <option name="LAST_COMMIT_MESSAGE" value="doc: readme" />
   </component>
 </project>

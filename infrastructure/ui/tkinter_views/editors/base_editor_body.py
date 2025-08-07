@@ -43,6 +43,7 @@ class BaseEditorBody(tk.Frame):
 
         # 3. Правая панель (Действия)
         self.actions_panel = tk.Frame(main_paned_window, bg=BG_PRIMARY)
+        # ИЗМЕНЕНИЕ: Устанавливаем фиксированную ширину 200, как на скриншоте.
         main_paned_window.add(self.actions_panel, width=200, minsize=180)
 
     def _create_context_menu_for_canvas(self):
@@ -105,7 +106,19 @@ class BaseEditorBody(tk.Frame):
             # Предполагается, что дочерний класс реализует get_form_data()
             self.actions_panel.show_code_button.config(command=lambda: command(self.get_form_data(), title))
 
+    # ИЗМЕНЕНИЕ: Новые методы для привязки команд к кнопкам палитр
+    def bind_node_palette_command(self, command: Callable[[], None]):
+        if hasattr(self.actions_panel, 'node_palette_button') and self.actions_panel.node_palette_button:
+            self.actions_panel.node_palette_button.config(command=command)
+
+    def bind_block_palette_command(self, command: Callable[[], None]):
+        if hasattr(self.actions_panel, 'block_palette_button') and self.actions_panel.block_palette_button:
+            self.actions_panel.block_palette_button.config(command=command)
+
+    def bind_location_palette_command(self, command: Callable[[], None]):
+        if hasattr(self.actions_panel, 'location_palette_button') and self.actions_panel.location_palette_button:
+            self.actions_panel.location_palette_button.config(command=command)
+
     def get_form_data(self) -> dict:
         """Должен быть реализован в дочернем классе."""
         raise NotImplementedError
-

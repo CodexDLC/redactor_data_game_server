@@ -21,6 +21,7 @@ class BlockEditorBody(BaseEditorBody):
         self._block_data: dict = self.get_initial_data()
         self._on_canvas_click_callback: Callable | None = None
         self.FIXED_GRID_SIZE = 300  # Фиксированный размер для предпросмотра блока
+        self.service: Any | None = None
 
         # --- Заменяем заглушки на реальные панели ---
         self.properties_panel = BlockPropertiesPanel(self.properties_panel, self.app)
@@ -35,6 +36,22 @@ class BlockEditorBody(BaseEditorBody):
         self._create_context_menu_for_canvas()
 
         self._set_initial_data()
+
+    def set_service(self, service: Any):
+        """
+        Метод для передачи сервиса после инициализации.
+        """
+        self.service = service
+        self.properties_panel.set_service(service)
+        self.bind_canvas_click(self.service.on_canvas_click)
+        self.bind_save_command(self.service.save_block)
+        self.bind_delete_command(self.service.delete_block)
+        self.bind_new_command(self.service.new_block)
+
+        # ИЗМЕНЕНИЕ ЗДЕСЬ: Вызываем метод _show_code_preview_window
+        # вместо несуществующего метода в сервисе
+        self.bind_show_code_command(self._show_code_preview_window, "Код данных блока")
+
 
     def get_initial_data(self) -> dict:
         """Возвращает пустую структуру данных для нового блока."""

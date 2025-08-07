@@ -6,13 +6,8 @@ from ..base_actions_panel import BaseActionsPanel
 class BlockActionsPanel(BaseActionsPanel):
     """
     Панель действий для Редактора Блоков.
-    На данный момент наследует все универсальные кнопки без добавления новых.
     """
 
     def __init__(self, master, app: Any):
-        super().__init__(master, app)
-
-        # В будущем здесь можно будет добавлять специфичные кнопки для этого редактора
-        # Например: self.some_specific_button = tk.Button(...)
-        # self.some_specific_button.pack(...)
-
+        # ИЗМЕНЕНИЕ: Вызываем конструктор родителя, передавая список только с одной палитрой
+        super().__init__(master, app, palettes_to_show=['nodes'])

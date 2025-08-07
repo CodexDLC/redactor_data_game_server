@@ -9,10 +9,9 @@ from infrastructure.persistence.initializer import RepositoryInitializer
 from core.editor_initializer import EditorInitializer
 from core.tag_filter_service import TagFilterService
 
-# --- ИЗМЕНЕНО: Импортируем новые базовые классы, которые создадим дальше ---
-# (Пока что эти файлы не существуют, мы создадим их на следующих шагах)
-# from infrastructure.ui.tkinter_views.editors.block.block_editor_body import BlockEditorBody
-# from infrastructure.ui.tkinter_views.editors.location.location_editor_body import LocationEditorBody
+# --- НОВЫЕ ИМПОРТЫ для финальных классов редакторов ---
+from infrastructure.ui.tkinter_views.editors.block.block_editor_body import BlockEditorBody
+from infrastructure.ui.tkinter_views.editors.location.location_editor_view import LocationEditorView
 
 from infrastructure.ui.tkinter_views.widgets.floating_palette import FloatingPaletteWindow
 from infrastructure.ui.tkinter_views.widgets.log_console_window import LogConsoleWindow
@@ -37,9 +36,9 @@ class MapEditorApp(tk.Frame):
         self.active_node_brush: Optional[dict] = None
         self.active_block_brush: Optional[dict] = None
         self.log_console_window: Optional[LogConsoleWindow] = None
-        self.current_editor_body: Optional[Any] = None
+        # ИЗМЕНЕНО: current_editor_body теперь хранит экземпляр нового класса
+        self.current_editor_body: Optional[BlockEditorBody | LocationEditorView] = None
 
-        # --- НОВАЯ СТРУКТУРА UI ---
         self.header: tk.Frame | None = None
         self.body_container: tk.Frame | None = None
         self.footer: tk.Label | None = None
@@ -96,25 +95,23 @@ class MapEditorApp(tk.Frame):
                  bg=BG_PRIMARY).pack(expand=True)
 
     def show_block_editor(self):
-        """Создает и отображает Редактор Блоков в Body."""
+        """
+        Создает и отображает Редактор Блоков в Body.
+        """
         self._clear_body_container()
-        # ЗАГЛУШКА: Здесь будет создание нового BlockEditorBody
-        # self.current_editor_body = BlockEditorBody(self.body_container, self)
-        # self.current_editor_body.pack(fill=tk.BOTH, expand=True)
-        # --- ВРЕМЕННАЯ ЗАГЛУШКА ---
-        tk.Label(self.body_container, text="Здесь будет Редактор Блоков", font=("Helvetica", 16), fg=FG_TEXT,
-                 bg=BG_PRIMARY).pack(expand=True)
+        # ИЗМЕНЕНО: Используем новый метод из EditorInitializer
+        self.current_editor_body = self.editors.create_block_editor()
+        self.current_editor_body.pack(fill=tk.BOTH, expand=True)
         self.set_status_message("Режим: Редактор Блоков")
 
     def show_location_editor(self):
-        """Создает и отображает Редактор Локаций в Body."""
+        """
+        Создает и отображает Редактор Локаций в Body.
+        """
         self._clear_body_container()
-        # ЗАГЛУШКА: Здесь будет создание нового LocationEditorBody
-        # self.current_editor_body = LocationEditorBody(self.body_container, self)
-        # self.current_editor_body.pack(fill=tk.BOTH, expand=True)
-        # --- ВРЕМЕННАЯ ЗАГЛУШКА ---
-        tk.Label(self.body_container, text="Здесь будет Редактор Локаций", font=("Helvetica", 16), fg=FG_TEXT,
-                 bg=BG_PRIMARY).pack(expand=True)
+        # ИЗМЕНЕНО: Используем новый метод из EditorInitializer
+        self.current_editor_body = self.editors.create_location_editor()
+        self.current_editor_body.pack(fill=tk.BOTH, expand=True)
         self.set_status_message("Режим: Редактор Локаций")
 
     def set_active_brush(self, brush_data: dict, brush_type: str):
