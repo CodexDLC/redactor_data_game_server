@@ -7,42 +7,23 @@ from typing import Optional, Any
 
 from infrastructure.persistence.initializer import RepositoryInitializer
 from core.editor_initializer import EditorInitializer
-from core.tag_filter_service import TagFilterService # --- ДОБАВЛЕНО ---
+from core.tag_filter_service import TagFilterService
 
-from infrastructure.ui.tkinter_views.left_panel.universal import UniversalLeftPanel
-from infrastructure.ui.tkinter_views.editors.block.block_editor_view import BlockEditorView
-from infrastructure.ui.tkinter_views.editors.location.location_editor_view import LocationEditorView
-from core.block_editor.block_editor_service import BlockEditorService
-from core.location_editor.location_editor_service import LocationEditorService
+# --- ИЗМЕНЕНО: Импортируем новые базовые классы, которые создадим дальше ---
+# (Пока что эти файлы не существуют, мы создадим их на следующих шагах)
+# from infrastructure.ui.tkinter_views.editors.block.block_editor_body import BlockEditorBody
+# from infrastructure.ui.tkinter_views.editors.location.location_editor_body import LocationEditorBody
+
 from infrastructure.ui.tkinter_views.widgets.floating_palette import FloatingPaletteWindow
 from infrastructure.ui.tkinter_views.widgets.log_console_window import LogConsoleWindow
 from infrastructure.ui.tkinter_views.styles import *
 
-# Определяем константы на уровне модуля
-MINIATURE_SIZE = 50
-MINIATURE_PADDING = 5
-DEFAULT_FONT = ("Helvetica", 10)
-FRAME_WIDTH = 100
-
-
-class TextWidgetHandler(logging.Handler):
-    def __init__(self, text_widget):
-        super().__init__()
-        self.text_widget = text_widget
-        self.text_widget.config(state=tk.DISABLED)
-
-    def emit(self, record: LogRecord):
-        msg = self.format(record)
-        self.text_widget.config(state=tk.NORMAL)
-        self.text_widget.insert(tk.END, msg + '\n')
-        self.text_widget.config(state=tk.DISABLED)
-        self.text_widget.see(tk.END)
-
 
 class MapEditorApp(tk.Frame):
     """
-    Класс редактора карты
+    Главный класс приложения. Управляет общей структурой UI и переключением между редакторами.
     """
+
     def __init__(self, master):
         super().__init__(master, bg=BG_PRIMARY)
 
@@ -50,86 +31,90 @@ class MapEditorApp(tk.Frame):
         self.logger.setLevel(logging.INFO)
 
         self.repos = RepositoryInitializer()
-        # --- ИСПРАВЛЕНО: Инициализируем TagFilterService здесь ---
         self.tag_filter_service = TagFilterService(self.repos.tag)
         self.editors = EditorInitializer(self)
 
         self.active_node_brush: Optional[dict] = None
         self.active_block_brush: Optional[dict] = None
         self.log_console_window: Optional[LogConsoleWindow] = None
-        self.current_editor_view: Optional[Any] = None
+        self.current_editor_body: Optional[Any] = None
 
-        self.toolbar = tk.Frame(self, bg=BG_SECONDARY)
-        self.toolbar.pack(side=tk.TOP, fill=tk.X)
+        # --- НОВАЯ СТРУКТУРА UI ---
+        self.header: tk.Frame | None = None
+        self.body_container: tk.Frame | None = None
+        self.footer: tk.Label | None = None
 
-        main_content_frame = tk.Frame(self, bg=BG_PRIMARY)
-        main_content_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self._setup_layout()
+        self._create_header_buttons()
+        self.show_welcome_screen()
 
-        self.left_panel = UniversalLeftPanel(
-            master=main_content_frame, app=self, node_repo=self.repos.node,
-            block_repo=self.repos.block, location_repo=self.repos.location,
-            module_repo=self.repos.module,
-            miniature_size=MINIATURE_SIZE, miniature_padding=MINIATURE_PADDING,
-            font=DEFAULT_FONT, frame_width=FRAME_WIDTH
-        )
-        self.left_panel.pack(side=tk.LEFT, fill=tk.Y, padx=5, pady=5)
+    def _setup_layout(self):
+        """Создает базовую разметку Header-Body-Footer."""
+        self.header = tk.Frame(self, bg=BG_SECONDARY)
+        self.header.pack(side=tk.TOP, fill=tk.X)
 
-        right_area_frame = tk.Frame(main_content_frame, bg=BG_PRIMARY)
-        right_area_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.body_container = tk.Frame(self, bg=BG_PRIMARY)
+        self.body_container.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        self.editor_container = tk.Frame(right_area_frame, bg=BG_PRIMARY)
-        self.editor_container.pack(fill=tk.BOTH, expand=True)
+        self.footer = tk.Label(self, text="Готов к работе...", bd=1, relief=tk.SUNKEN, anchor=tk.W,
+                               bg=BG_CANVAS, fg=FG_TEXT)
+        self.footer.pack(side=tk.BOTTOM, fill=tk.X)
 
-        self.status_bar = tk.Label(self, text="Готов к работе...", bd=1, relief=tk.SUNKEN, anchor=tk.W,
-                                   bg=BG_CANVAS, fg=FG_TEXT)
-        self.status_bar.pack(side=tk.BOTTOM, fill=tk.X)
-
-        self._create_toolbar()
-        self.show_mode_selection_screen()
-
-    def _create_toolbar(self):
-        tk.Button(self.toolbar, text="Редактор Блоков", command=self.show_block_editor, bg=BG_PRIMARY,
+    def _create_header_buttons(self):
+        """Создает кнопки переключения редакторов в Header."""
+        tk.Button(self.header, text="Редактор Блоков", command=self.show_block_editor, bg=BG_PRIMARY,
                   fg=FG_TEXT).pack(side=tk.LEFT, padx=5, pady=2)
-        tk.Button(self.toolbar, text="Редактор Локаций", command=self.show_location_editor, bg=BG_PRIMARY,
+        tk.Button(self.header, text="Редактор Локаций", command=self.show_location_editor, bg=BG_PRIMARY,
                   fg=FG_TEXT).pack(side=tk.LEFT, padx=5, pady=2)
-        ttk.Separator(self.toolbar, orient='vertical').pack(side=tk.LEFT, fill='y', padx=10, pady=2)
-        tk.Button(self.toolbar, text="Открыть консоль логов", command=self.show_log_console, bg=BG_PRIMARY,
+
+        ttk.Separator(self.header, orient='vertical').pack(side=tk.LEFT, fill='y', padx=10, pady=2)
+
+        tk.Button(self.header, text="Открыть консоль логов", command=self.show_log_console, bg=BG_PRIMARY,
                   fg=FG_TEXT).pack(side=tk.LEFT, padx=5, pady=2)
 
     def show_log_console(self):
+        """Открывает или фокусирует окно с логами."""
         if self.log_console_window and self.log_console_window.winfo_exists():
             self.log_console_window.lift()
         else:
             self.log_console_window = LogConsoleWindow(self)
 
     def set_status_message(self, message: str, is_error: bool = False):
-        self.status_bar.config(text=message, fg=ERROR_COLOR if is_error else FG_TEXT)
+        """Обновляет текст в строке статуса (Footer)."""
+        self.footer.config(text=message, fg=ERROR_COLOR if is_error else FG_TEXT)
 
-    def clear_editor_container(self):
-        for widget in self.editor_container.winfo_children():
+    def _clear_body_container(self):
+        """Уничтожает все виджеты в центральной части (Body)."""
+        for widget in self.body_container.winfo_children():
             widget.destroy()
+        self.current_editor_body = None
 
-    def show_mode_selection_screen(self):
-        self.clear_editor_container()
-        tk.Label(self.editor_container, text="Выберите режим в меню сверху", font=("Helvetica", 16), fg=FG_TEXT,
+    def show_welcome_screen(self):
+        """Отображает приветственный экран в Body."""
+        self._clear_body_container()
+        tk.Label(self.body_container, text="Выберите режим в меню сверху", font=("Helvetica", 16), fg=FG_TEXT,
                  bg=BG_PRIMARY).pack(expand=True)
-        self.current_editor_view = None
 
     def show_block_editor(self):
-        self.clear_editor_container()
-        view = self.editors.create_block_editor()
-        view.pack(fill=tk.BOTH, expand=True)
-        self.current_editor_view = view
-        self.left_panel.show_panel("blocks")
-        self.set_status_message("Режим: Редактор Блоков (Тайлов)")
+        """Создает и отображает Редактор Блоков в Body."""
+        self._clear_body_container()
+        # ЗАГЛУШКА: Здесь будет создание нового BlockEditorBody
+        # self.current_editor_body = BlockEditorBody(self.body_container, self)
+        # self.current_editor_body.pack(fill=tk.BOTH, expand=True)
+        # --- ВРЕМЕННАЯ ЗАГЛУШКА ---
+        tk.Label(self.body_container, text="Здесь будет Редактор Блоков", font=("Helvetica", 16), fg=FG_TEXT,
+                 bg=BG_PRIMARY).pack(expand=True)
+        self.set_status_message("Режим: Редактор Блоков")
 
     def show_location_editor(self):
-        """Отображает редактор локаций."""
-        self.clear_editor_container()
-        view = self.editors.create_location_editor()
-        view.pack(fill=tk.BOTH, expand=True)
-        self.current_editor_view = view
-        self.left_panel.show_panel("modules")
+        """Создает и отображает Редактор Локаций в Body."""
+        self._clear_body_container()
+        # ЗАГЛУШКА: Здесь будет создание нового LocationEditorBody
+        # self.current_editor_body = LocationEditorBody(self.body_container, self)
+        # self.current_editor_body.pack(fill=tk.BOTH, expand=True)
+        # --- ВРЕМЕННАЯ ЗАГЛУШКА ---
+        tk.Label(self.body_container, text="Здесь будет Редактор Локаций", font=("Helvetica", 16), fg=FG_TEXT,
+                 bg=BG_PRIMARY).pack(expand=True)
         self.set_status_message("Режим: Редактор Локаций")
 
     def set_active_brush(self, brush_data: dict, brush_type: str):
@@ -155,12 +140,14 @@ class MapEditorApp(tk.Frame):
         return None
 
     def unselect_active_brush(self):
+        """Сбрасывает активную кисточку."""
         self.active_node_brush = None
         self.active_block_brush = None
         self.set_status_message("Активная кисточка сброшена.")
         self.master.master.config(cursor="")
 
     def open_palette(self, palette_type: str, x: int, y: int):
+        """Открывает соответствующее окно палитры."""
         if palette_type == "nodes":
             items_data = self.repos.node.get_all()
             FloatingPaletteWindow(self, title="Палитра Нодов", app=self, items_data=items_data, x=x, y=y)
@@ -169,28 +156,3 @@ class MapEditorApp(tk.Frame):
             node_data_source = self.repos.node.get_all()
             FloatingPaletteWindow(self, title="Палитра Блоков", app=self, items_data=items_data, x=x, y=y,
                                   palette_type="blocks", node_data_source=node_data_source)
-
-    def on_block_selected(self, block_name: str):
-        """
-        Метод-обработчик для выбора блока в левой панели.
-        Либо загружает блок в редактор, либо устанавливает его как кисточку.
-        """
-        if self.current_editor_view and isinstance(self.current_editor_view, LocationEditorView):
-            block_data = self.repos.block.get_by_key(block_name)
-            if block_data:
-                block_data['block_key'] = block_name
-                self.set_active_brush(block_data, "block")
-            else:
-                self.set_status_message(f"Ошибка: Блок '{block_name}' не найден.", is_error=True)
-
-        elif self.current_editor_view and isinstance(self.current_editor_view, BlockEditorView):
-            block_data = self.repos.block.get_by_key(block_name)
-            if block_data:
-                block_data['block_key'] = block_name
-                enriched_data = self.current_editor_view.service.enrich_data_with_colors(block_data)
-                self.current_editor_view.set_form_data(enriched_data)
-                self.set_status_message(f"Блок '{block_name}' загружен в редактор.")
-            else:
-                self.set_status_message(f"Ошибка: Блок '{block_name}' не найден.", is_error=True)
-        else:
-            self.set_status_message("Неизвестный режим редактора для выбора блока.", is_error=True)
