@@ -5,7 +5,7 @@ from typing import Any, Dict, Optional
 from interfaces.persistence.i_block_repository import IBlockRepository
 from interfaces.persistence.i_node_repository import INodeRepository
 from interfaces.ui.i_block_editor_view import IBlockEditorView
-from .block_editor_helpers import transform_nodes_data_for_saving, calculate_all_exits
+from .block_editor_helpers import transform_nodes_data_for_saving
 
 
 class BlockEditorService:

@@ -4,22 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="73ec93af-afc8-4c10-812d-bfe3f817fd17" name="Changes" comment="doc: readme">
-      <change afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_gallery_panel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/block_editor/block_editor_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/block_editor/block_editor_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/editor_initializer.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/editor_initializer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/templates/blocks.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/templates/blocks.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/base_actions_panel.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/base_actions_panel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/base_editor_body.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/base_editor_body.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_actions_panel.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_actions_panel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_editor.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_editor_body.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_editor_body.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_editor_controls.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_editor_view.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_properties_panel.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_properties_panel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/map_editor_app.py" beforeDir="false" afterPath="$PROJECT_DIR$/map_editor_app.py" afterDir="false" />
-    </list>
+    <list default="true" id="73ec93af-afc8-4c10-812d-bfe3f817fd17" name="Changes" comment="refac: block editor" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -161,7 +146,15 @@
       <option name="project" value="LOCAL" />
       <updated>1754521599778</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="refac: block editor">
+      <option name="closed" value="true" />
+      <created>1754583410303</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1754583410303</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -170,6 +163,7 @@
     <MESSAGE value="control 0.2" />
     <MESSAGE value="future + refactoring" />
     <MESSAGE value="doc: readme" />
-    <option name="LAST_COMMIT_MESSAGE" value="doc: readme" />
+    <MESSAGE value="refac: block editor" />
+    <option name="LAST_COMMIT_MESSAGE" value="refac: block editor" />
   </component>
 </project>
