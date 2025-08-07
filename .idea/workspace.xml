@@ -4,11 +4,21 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="73ec93af-afc8-4c10-812d-bfe3f817fd17" name="Changes" comment="doc: readme">
+    <list default="true" id="73ec93af-afc8-4c10-812d-bfe3f817fd17" name="Changes" comment="fix: delete block">
+      <change afterPath="$PROJECT_DIR$/core/location_editor/location_editor_helpers.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/base_actions_panel.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/base_editor_body.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/base_properties_panel.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_actions_panel.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_editor_body.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_properties_panel.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/tags_library.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/tags_library.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/location_editor/location_editor_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/location_editor/location_editor_service.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data/templates/blocks.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/templates/blocks.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/widgets/tag_input_widget.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/widgets/tag_input_widget.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/base_editor_controls.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/base_editor_controls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/location/location_editor_controls.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/location/location_editor_controls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/location/location_editor_view.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/location/location_editor_view.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/map_editor_app.py" beforeDir="false" afterPath="$PROJECT_DIR$/map_editor_app.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,6 +33,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -53,7 +68,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "main"
+    "git-widget-placeholder": "future/location__editor"
   }
 }]]></component>
   <component name="RecentsManager">
@@ -146,7 +161,15 @@
       <option name="project" value="LOCAL" />
       <updated>1754521599778</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="fix: delete block">
+      <option name="closed" value="true" />
+      <created>1754552417125</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1754552417125</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -155,6 +178,7 @@
     <MESSAGE value="control 0.2" />
     <MESSAGE value="future + refactoring" />
     <MESSAGE value="doc: readme" />
-    <option name="LAST_COMMIT_MESSAGE" value="doc: readme" />
+    <MESSAGE value="fix: delete block" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: delete block" />
   </component>
 </project>
