@@ -4,12 +4,17 @@
         "wall"
     ],
     "block_tags": [
+        "1",
         "corner",
         "east",
+        "flor",
         "north",
         "south",
         "void",
         "wall",
         "west"
+    ],
+    "prebuffer_tags": [
+        "intersection"
     ]
 }

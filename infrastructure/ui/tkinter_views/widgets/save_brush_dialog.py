@@ -16,12 +16,27 @@ class SaveBrushDialog(tk.Toplevel):
     def __init__(self, master, title: str = "Сохранить как кисточку"):
         super().__init__(master)
         self.title(title)
-        self.transient(master)  # Делаем окно модальным
-        self.grab_set()         # Перехватываем фокус
+        self.transient(master)
+        self.grab_set()
 
         self.config(bg=BG_PRIMARY, padx=10, pady=10)
 
         self.result: Optional[Tuple[str, str]] = None
+
+        # ИЗМЕНЕНИЕ: Устанавливаем положение окна по центру
+        self.update_idletasks()
+        master_x = master.winfo_x()
+        master_y = master.winfo_y()
+        master_width = master.winfo_width()
+        master_height = master.winfo_height()
+
+        win_width = self.winfo_width()
+        win_height = self.winfo_height()
+
+        x = master_x + (master_width - win_width) // 2
+        y = master_y + (master_height - win_height) // 2
+
+        self.geometry(f'+{x}+{y}')
 
         # --- Виджеты ---
         tk.Label(self, text="Уникальный ключ (ID):", fg=FG_TEXT, bg=BG_PRIMARY).pack(anchor="w")
@@ -44,9 +59,8 @@ class SaveBrushDialog(tk.Toplevel):
         cancel_button = tk.Button(button_frame, text="Отмена", command=self._on_cancel, bg=BG_SECONDARY, fg=FG_TEXT)
         cancel_button.pack(side=tk.RIGHT)
 
-        self.id_entry.focus_set() # Устанавливаем фокус на первое поле
+        self.id_entry.focus_set()
 
-        # Ждем, пока окно не будет закрыто
         self.wait_window(self)
 
     def _on_save(self):
@@ -68,9 +82,5 @@ class SaveBrushDialog(tk.Toplevel):
 
     @staticmethod
     def ask(master) -> Optional[Tuple[str, str]]:
-        """
-        Статический метод для удобного вызова диалога.
-        Возвращает (template_id, display_name) или None.
-        """
         dialog = SaveBrushDialog(master)
         return dialog.result

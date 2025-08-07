@@ -16,6 +16,7 @@ class BlockEditorService:
         self.app = app
         self.node_repo = node_repo
         self.current_block_key: Optional[str] = None
+        logging.info("BlockEditorService: Сервис инициализирован.")
 
         self.view.bind_save_command(self.save_block)
         self.view.bind_delete_command(self.delete_block)
@@ -23,33 +24,33 @@ class BlockEditorService:
         self.view.bind_canvas_click(self.on_canvas_click)
 
     def load_block_for_editing(self, block_key: str) -> None:
-        """
-        Загружает данные блока по ключу и обновляет View.
-        """
         logging.info(f"BlockEditorService: Загрузка блока '{block_key}' для редактирования.")
         block_data = self.repository.get_by_key(block_key)
         if block_data:
-            # ИЗМЕНЕНИЕ: Добавляем block_key в словарь с данными перед передачей в UI
             block_data['block_key'] = block_key
 
             self.current_block_key = block_key
             block_data_with_colors = self._enrich_block_data_with_colors(block_data)
             self.view.set_form_data(block_data_with_colors)
             self.app.set_status_message(f"Блок '{block_key}' загружен для редактирования.")
+            logging.info(f"BlockEditorService: Блок '{block_key}' успешно загружен.")
         else:
             self.app.set_status_message(f"Ошибка: Блок с ключом '{block_key}' не найден.", is_error=True)
             logging.warning(f"BlockEditorService: Блок с ключом '{block_key}' не найден.")
 
     def save_block(self) -> None:
+        logging.info("BlockEditorService: Запуск сохранения блока.")
         data = self.view.get_form_data()
         block_key = data.get('block_key')
 
         if not block_key:
             self.app.set_status_message("Ошибка: Имя ключа блока не может быть пустым.", is_error=True)
+            logging.error("BlockEditorService: Попытка сохранения блока с пустым ключом.")
             return
 
         nodes_structure = data.get('nodes_structure', [])
         nodes_data = data.get('nodes_data', {})
+        logging.info(f"BlockEditorService: Данные формы получены. Ключ: '{block_key}'.")
 
         transformed_nodes_data = transform_nodes_data_for_saving(nodes_data)
 
@@ -67,15 +68,14 @@ class BlockEditorService:
         self.repository.upsert(block_key, block_data_to_save)
         self.current_block_key = block_key
         self.app.set_status_message(f"Блок '{block_key}' успешно сохранен.")
-
-        # НОВОЕ: После сохранения обновляем галерею блоков
+        logging.info(f"BlockEditorService: Блок '{block_key}' успешно сохранен в репозиторий.")
         self.view.refresh_gallery()
 
     def on_canvas_click(self, row: int, col: int, node_id: int | None) -> None:
         active_brush_info = self.app.get_active_brush()
 
         if not active_brush_info or active_brush_info[0] != "node":
-            logging.info("BlockEditorService: Клик без активной кисти-нода.")
+            logging.info("BlockEditorService: Клик без активной кисти-нода. Действие проигнорировано.")
             return
 
         brush_node = active_brush_info[1]
@@ -98,12 +98,10 @@ class BlockEditorService:
         self.view.set_form_data(block_data)
 
         logging.info(
-            f"BlockEditorService: Нод '{brush_node['node_key']}' размещен в [{row},{col}] с ID {local_id_str}.")
+            f"BlockEditorService: Нод '{brush_node['node_key']}' размещен в [{row},{col}] с ID {local_id_str}. UI обновлен.")
 
     def enrich_data_with_colors(self, block_data: dict) -> dict:
-        """
-        Публичный метод для обогащения данных блока цветами.
-        """
+        logging.debug("BlockEditorService: Обогащение данных блока цветами.")
         return self._enrich_block_data_with_colors(block_data)
 
     def _enrich_block_data_with_colors(self, block_data: dict) -> dict:
@@ -116,9 +114,7 @@ class BlockEditorService:
         return block_data
 
     def new_block(self) -> None:
-        """
-        Создает новый пустой блок 3x3 и загружает его в редактор.
-        """
+        logging.info("BlockEditorService: Создание нового пустого блока.")
         self.current_block_key = None
         new_block_data = {
             'block_key': '',
@@ -131,15 +127,16 @@ class BlockEditorService:
         }
         self.view.set_form_data(new_block_data)
         self.app.set_status_message("Создан новый пустой блок 3x3.")
+        logging.info("BlockEditorService: Новый блок успешно создан и загружен в UI.")
 
     def delete_block(self) -> None:
         if self.current_block_key:
             key_to_delete = self.current_block_key
+            logging.info(f"BlockEditorService: Запуск удаления блока '{key_to_delete}'.")
             self.repository.delete(key_to_delete)
             self.app.set_status_message(f"Блок '{key_to_delete}' удален.")
+            logging.info(f"BlockEditorService: Блок '{key_to_delete}' удален. Создание нового пустого блока.")
             self.new_block()
-
-            # НОВОЕ: Обновляем галерею блоков после удаления
-            self.view.refresh_gallery()
         else:
             self.app.set_status_message("Ошибка: Не выбран блок для удаления.", is_error=True)
+            logging.warning("BlockEditorService: Попытка удалить блок, когда ни один не выбран.")

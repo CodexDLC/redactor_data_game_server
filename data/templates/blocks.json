@@ -1,1 +1,527 @@
-{}
+{
+    "void": {
+        "display_name": "Пустота",
+        "tags": [
+            "east",
+            "void"
+        ],
+        "width": 3,
+        "height": 3,
+        "nodes_structure": [
+            [
+                "0",
+                "1",
+                "2"
+            ],
+            [
+                "3",
+                "4",
+                "5"
+            ],
+            [
+                "6",
+                "7",
+                "8"
+            ]
+        ],
+        "nodes_data": {
+            "0": {
+                "template_key": "void",
+                "color": "#483d8b"
+            },
+            "3": {
+                "template_key": "void",
+                "color": "#483d8b"
+            },
+            "6": {
+                "template_key": "void",
+                "color": "#483d8b"
+            },
+            "7": {
+                "template_key": "void",
+                "color": "#483d8b"
+            },
+            "4": {
+                "template_key": "void",
+                "color": "#483d8b"
+            },
+            "1": {
+                "template_key": "void",
+                "color": "#483d8b"
+            },
+            "2": {
+                "template_key": "void",
+                "color": "#483d8b"
+            },
+            "5": {
+                "template_key": "void",
+                "color": "#483d8b"
+            },
+            "8": {
+                "template_key": "void",
+                "color": "#483d8b"
+            }
+        },
+        "block_key": "void"
+    },
+    "wall_1": {
+        "display_name": "стена по центру",
+        "tags": [
+            "wall"
+        ],
+        "width": 3,
+        "height": 3,
+        "nodes_structure": [
+            [
+                "0",
+                "1",
+                "2"
+            ],
+            [
+                "3",
+                "4",
+                "5"
+            ],
+            [
+                "6",
+                "7",
+                "8"
+            ]
+        ],
+        "nodes_data": {
+            "0": {
+                "template_key": "walkable"
+            },
+            "3": {
+                "template_key": "walkable"
+            },
+            "6": {
+                "template_key": "walkable"
+            },
+            "7": {
+                "template_key": "walkable"
+            },
+            "4": {
+                "template_key": "solid"
+            },
+            "1": {
+                "template_key": "walkable"
+            },
+            "2": {
+                "template_key": "walkable"
+            },
+            "5": {
+                "template_key": "walkable"
+            },
+            "8": {
+                "template_key": "walkable"
+            }
+        }
+    },
+    "full_wall": {
+        "display_name": "Полная стена ",
+        "tags": [
+            "wall"
+        ],
+        "width": 3,
+        "height": 3,
+        "nodes_structure": [
+            [
+                "0",
+                "1",
+                "2"
+            ],
+            [
+                "3",
+                "4",
+                "5"
+            ],
+            [
+                "6",
+                "7",
+                "8"
+            ]
+        ],
+        "nodes_data": {
+            "0": {
+                "template_key": "solid"
+            },
+            "3": {
+                "template_key": "solid"
+            },
+            "1": {
+                "template_key": "solid"
+            },
+            "4": {
+                "template_key": "solid"
+            },
+            "2": {
+                "template_key": "solid"
+            },
+            "8": {
+                "template_key": "solid"
+            },
+            "5": {
+                "template_key": "solid"
+            },
+            "7": {
+                "template_key": "solid"
+            },
+            "6": {
+                "template_key": "solid"
+            }
+        }
+    },
+    "wall_4": {
+        "display_name": "4 угловых стены",
+        "tags": [
+            "wall"
+        ],
+        "width": 3,
+        "height": 3,
+        "nodes_structure": [
+            [
+                "0",
+                "1",
+                "2"
+            ],
+            [
+                "3",
+                "4",
+                "5"
+            ],
+            [
+                "6",
+                "7",
+                "8"
+            ]
+        ],
+        "nodes_data": {
+            "0": {
+                "template_key": "solid"
+            },
+            "6": {
+                "template_key": "solid"
+            },
+            "2": {
+                "template_key": "solid"
+            },
+            "8": {
+                "template_key": "solid"
+            },
+            "1": {
+                "template_key": "walkable"
+            },
+            "4": {
+                "template_key": "walkable"
+            },
+            "7": {
+                "template_key": "walkable"
+            },
+            "5": {
+                "template_key": "walkable"
+            },
+            "3": {
+                "template_key": "walkable"
+            }
+        }
+    },
+    "wall_corner_1": {
+        "display_name": "Угол стены",
+        "tags": [
+            "corner",
+            "east",
+            "south"
+        ],
+        "width": 3,
+        "height": 3,
+        "nodes_structure": [
+            [
+                "0",
+                "1",
+                "2"
+            ],
+            [
+                "3",
+                "4",
+                "5"
+            ],
+            [
+                "6",
+                "7",
+                "8"
+            ]
+        ],
+        "nodes_data": {
+            "6": {
+                "template_key": "solid",
+                "color": "#654321"
+            },
+            "3": {
+                "template_key": "walkable",
+                "color": "#cccccc"
+            },
+            "0": {
+                "template_key": "walkable",
+                "color": "#cccccc"
+            },
+            "1": {
+                "template_key": "walkable",
+                "color": "#cccccc"
+            },
+            "2": {
+                "template_key": "solid",
+                "color": "#654321"
+            },
+            "4": {
+                "template_key": "walkable",
+                "color": "#cccccc"
+            },
+            "7": {
+                "template_key": "solid",
+                "color": "#654321"
+            },
+            "8": {
+                "template_key": "solid",
+                "color": "#654321"
+            },
+            "5": {
+                "template_key": "solid",
+                "color": "#654321"
+            }
+        },
+        "block_key": "wall_corner_1"
+    },
+    "wall_corner_2": {
+        "display_name": "Угол стены северо восток",
+        "tags": [
+            "north",
+            "east",
+            "wall"
+        ],
+        "width": 3,
+        "height": 3,
+        "nodes_structure": [
+            [
+                "0",
+                "1",
+                "2"
+            ],
+            [
+                "3",
+                "4",
+                "5"
+            ],
+            [
+                "6",
+                "7",
+                "8"
+            ]
+        ],
+        "nodes_data": {
+            "0": {
+                "template_key": "solid",
+                "color": "#654321"
+            },
+            "6": {
+                "template_key": "walkable",
+                "color": "#cccccc"
+            },
+            "2": {
+                "template_key": "solid",
+                "color": "#654321"
+            },
+            "8": {
+                "template_key": "solid",
+                "color": "#654321"
+            },
+            "1": {
+                "template_key": "solid",
+                "color": "#654321"
+            },
+            "4": {
+                "template_key": "walkable",
+                "color": "#cccccc"
+            },
+            "7": {
+                "template_key": "walkable",
+                "color": "#cccccc"
+            },
+            "5": {
+                "template_key": "solid",
+                "color": "#654321"
+            },
+            "3": {
+                "template_key": "walkable",
+                "color": "#cccccc"
+            }
+        },
+        "block_key": "wall_corner_2"
+    },
+    "wall_corner_3": {
+        "display_name": "Угол стены",
+        "tags": [
+            "west",
+            "corner",
+            "south"
+        ],
+        "width": 3,
+        "height": 3,
+        "nodes_structure": [
+            [
+                "0",
+                "1",
+                "2"
+            ],
+            [
+                "3",
+                "4",
+                "5"
+            ],
+            [
+                "6",
+                "7",
+                "8"
+            ]
+        ],
+        "nodes_data": {
+            "6": {
+                "template_key": "solid"
+            },
+            "3": {
+                "template_key": "solid"
+            },
+            "0": {
+                "template_key": "solid"
+            },
+            "1": {
+                "template_key": "walkable"
+            },
+            "2": {
+                "template_key": "walkable"
+            },
+            "4": {
+                "template_key": "walkable"
+            },
+            "7": {
+                "template_key": "solid"
+            },
+            "8": {
+                "template_key": "solid"
+            },
+            "5": {
+                "template_key": "walkable"
+            }
+        }
+    },
+    "wall_corner_4": {
+        "display_name": "Угол стены",
+        "tags": [
+            "north",
+            "corner",
+            "east"
+        ],
+        "width": 3,
+        "height": 3,
+        "nodes_structure": [
+            [
+                "0",
+                "1",
+                "2"
+            ],
+            [
+                "3",
+                "4",
+                "5"
+            ],
+            [
+                "6",
+                "7",
+                "8"
+            ]
+        ],
+        "nodes_data": {
+            "6": {
+                "template_key": "solid"
+            },
+            "3": {
+                "template_key": "solid"
+            },
+            "0": {
+                "template_key": "solid"
+            },
+            "1": {
+                "template_key": "solid"
+            },
+            "2": {
+                "template_key": "solid"
+            },
+            "4": {
+                "template_key": "walkable"
+            },
+            "7": {
+                "template_key": "walkable"
+            },
+            "8": {
+                "template_key": "walkable"
+            },
+            "5": {
+                "template_key": "walkable"
+            }
+        }
+    },
+    "flor": {
+        "display_name": "Пол 9 клеток",
+        "tags": [
+            "flor"
+        ],
+        "width": 3,
+        "height": 3,
+        "nodes_structure": [
+            [
+                "0",
+                "1",
+                "2"
+            ],
+            [
+                "3",
+                "4",
+                "5"
+            ],
+            [
+                "6",
+                "7",
+                "8"
+            ]
+        ],
+        "nodes_data": {
+            "0": {
+                "template_key": "walkable"
+            },
+            "3": {
+                "template_key": "walkable"
+            },
+            "6": {
+                "template_key": "walkable"
+            },
+            "7": {
+                "template_key": "walkable"
+            },
+            "4": {
+                "template_key": "walkable"
+            },
+            "1": {
+                "template_key": "walkable"
+            },
+            "2": {
+                "template_key": "walkable"
+            },
+            "5": {
+                "template_key": "walkable"
+            },
+            "8": {
+                "template_key": "walkable"
+            }
+        }
+    }
+}

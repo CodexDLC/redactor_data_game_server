@@ -7,12 +7,6 @@ from ...widgets.tag_input_widget import TagInputWidget
 
 
 class BlockGalleryPanel(BasePropertiesPanel):
-    """
-    Панель для отображения всех существующих блоков в виде миниатюр.
-    Используется в редакторе блоков для визуальной справки.
-    """
-
-    # Исправленный маппинг для корректного сопоставления template_key из блоков с реальными нодами
     TEMPLATE_KEY_MAPPING = {
         'flor': 'walkable',
         'wall': 'solid',
@@ -21,10 +15,9 @@ class BlockGalleryPanel(BasePropertiesPanel):
         'void': 'void'
     }
 
-    # ИЗМЕНЕНИЕ: Убрали 'service' из конструктора
     def __init__(self, master, app: Any):
         super().__init__(master, app)
-        self.service: Any | None = None  # Инициализируем service как None
+        self.service: Any | None = None
         self.blocks = self.app.repos.block.get_all()
         self.node_repo = self.app.repos.node
         self.miniature_size = 30
@@ -33,7 +26,6 @@ class BlockGalleryPanel(BasePropertiesPanel):
         main_frame = tk.LabelFrame(self, text="Доступные блоки", fg=FG_TEXT, bg=BG_PRIMARY, padx=5, pady=5)
         main_frame.pack(fill=tk.BOTH, expand=True)
 
-        # Виджет для фильтрации по тегам
         self.tag_filter_widget = TagInputWidget(main_frame, self.app.tag_filter_service, "block_tags",
                                                 self.on_tags_changed)
         self.tag_filter_widget.pack(fill=tk.X, padx=5, pady=5)
@@ -55,36 +47,24 @@ class BlockGalleryPanel(BasePropertiesPanel):
         self.canvas.pack(side="left", fill="both", expand=True, padx=(5, 0))
         self.scrollbar.pack(side="right", fill="y")
 
-        # Комментируем вызов, так как он зависит от service
-        # self.draw_all_miniatures()
-
-    # ИЗМЕНЕНИЕ: Добавили новый метод set_service
     def set_service(self, service: Any):
-        """
-        Метод для передачи сервиса после инициализации.
-        """
         self.service = service
-        # Вызываем отрисовку после получения сервиса
         self.draw_all_miniatures()
 
     def on_tags_changed(self, tags: List[str]):
-        """Callback-функция для обновления списка при изменении тегов."""
         self.selected_tags = set(tags)
         self.draw_all_miniatures()
 
     def on_miniature_click(self, block_key: str):
-        """Обработчик клика по миниатюре."""
-        if self.service:  # Проверяем, что service установлен
+        if self.service:
             self.service.load_block_for_editing(block_key)
 
     def draw_all_miniatures(self):
-        """Отрисовывает миниатюры всех блоков, отфильтрованных по тегам."""
         for widget in self.scrollable_frame.winfo_children():
             widget.destroy()
 
         all_block_names = sorted(list(self.blocks.keys()))
 
-        # Применяем фильтр по тегам
         filtered_block_names = []
         for name in all_block_names:
             block_data = self.blocks.get(name, {})
@@ -100,7 +80,6 @@ class BlockGalleryPanel(BasePropertiesPanel):
             miniature_frame = tk.Frame(self.scrollable_frame, bg=BG_PRIMARY)
             miniature_frame.pack(fill=tk.X, padx=2, pady=2)
 
-            # Привязываем клик к фрейму
             miniature_frame.bind("<Button-1>", lambda e, key=name: self.on_miniature_click(key))
 
             block_canvas = tk.Canvas(miniature_frame, width=self.miniature_size, height=self.miniature_size,
@@ -108,7 +87,6 @@ class BlockGalleryPanel(BasePropertiesPanel):
             block_canvas.pack(side="left", padx=(0, 5))
             block_canvas.bind("<Button-1>", lambda e, key=name: self.on_miniature_click(key))
 
-            # Отрисовка миниатюры
             if nodes_structure and nodes_structure[0]:
                 height = len(nodes_structure)
                 width = len(nodes_structure[0])
@@ -126,9 +104,7 @@ class BlockGalleryPanel(BasePropertiesPanel):
                             else:
                                 node_details = block_nodes_data.get(str(node_id), {})
                                 template_key = node_details.get('template_key', 'void')
-
                                 mapped_key = self.TEMPLATE_KEY_MAPPING.get(template_key, 'void')
-
                                 node_template_data = self.node_repo.get_by_key(mapped_key)
 
                                 if node_template_data:
@@ -138,13 +114,11 @@ class BlockGalleryPanel(BasePropertiesPanel):
 
                             block_canvas.create_rectangle(x1, y1, x2, y2, fill=fill_color, outline="")
 
-            # Имя для UI, а не ключ
             display_name = block_data_source.get('display_name', name)
             block_label = tk.Label(miniature_frame, text=display_name, fg=FG_TEXT, bg=BG_PRIMARY, anchor="w")
             block_label.pack(side="left", fill=tk.X, expand=True)
             block_label.bind("<Button-1>", lambda e, key=name: self.on_miniature_click(key))
 
-            # Эффекты при наведении
             miniature_frame.bind("<Enter>", lambda e, fr=miniature_frame: fr.config(bg=BG_HIGHLIGHT))
             miniature_frame.bind("<Leave>", lambda e, fr=miniature_frame: fr.config(bg=BG_PRIMARY))
             block_label.bind("<Enter>", lambda e, fr=miniature_frame: fr.config(bg=BG_HIGHLIGHT))

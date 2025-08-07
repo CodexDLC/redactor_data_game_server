@@ -1,50 +1,28 @@
 # File: infrastructure/ui/tkinter_views/editors/base_editor_body.py
 import tkinter as tk
+from tkinter import ttk
 from typing import Any, Callable
+
 from ..styles import *
-from ..widgets.code_preview_window import CodePreviewWindow
 from ..widgets.universal_context_menu import create_universal_context_menu
+from ..widgets.code_preview_window import CodePreviewWindow
 
 
 class BaseEditorBody(tk.Frame):
-    """
-    Базовый класс для "тела" любого редактора.
-    Создает унифицированную трехпанельную разметку.
-    """
-
     def __init__(self, master, app: Any):
         super().__init__(master, bg=BG_PRIMARY)
         self.app = app
         self.service: Any | None = None
+        self.properties_panel = tk.Frame(self, bg=BG_PRIMARY, width=300)
+        self.actions_panel = tk.Frame(self, bg=BG_PRIMARY, width=300)
+
+        self.canvas = tk.Canvas(self, bg=BG_CANVAS, highlightthickness=0)
+        self.context_menu: tk.Menu | None = None
         self._code_preview_window: CodePreviewWindow | None = None
 
-        # --- Панели ---
-        self.properties_panel: tk.Frame | None = None
-        self.canvas: tk.Canvas | None = None
-        self.actions_panel: tk.Frame | None = None
-
-        self.context_menu: tk.Menu | None = None
-
-        self._setup_layout()
-
-    def _setup_layout(self):
-        """Создает трехпанельную разметку."""
-        # Используем PanedWindow для возможности изменять размеры панелей
-        main_paned_window = tk.PanedWindow(self, orient=tk.HORIZONTAL, sashrelief=tk.SUNKEN, bg=BG_PRIMARY)
-        main_paned_window.pack(fill=tk.BOTH, expand=True)
-
-        # 1. Левая панель (Свойства)
-        self.properties_panel = tk.Frame(main_paned_window, bg=BG_PRIMARY)
-        main_paned_window.add(self.properties_panel, width=300, minsize=250)
-
-        # 2. Центральная панель (Холст)
-        self.canvas = tk.Canvas(main_paned_window, bg=BG_CANVAS, highlightthickness=0)
-        main_paned_window.add(self.canvas, stretch="always")
-
-        # 3. Правая панель (Действия)
-        self.actions_panel = tk.Frame(main_paned_window, bg=BG_PRIMARY)
-        # ИЗМЕНЕНИЕ: Устанавливаем фиксированную ширину 200, как на скриншоте.
-        main_paned_window.add(self.actions_panel, width=200, minsize=180)
+        self.properties_panel.pack(side=tk.LEFT, fill=tk.Y)
+        self.actions_panel.pack(side=tk.RIGHT, fill=tk.Y)
+        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
     def _create_context_menu_for_canvas(self):
         """Создает и привязывает универсальное контекстное меню к холсту."""
@@ -87,38 +65,26 @@ class BaseEditorBody(tk.Frame):
         else:
             self._code_preview_window = CodePreviewWindow(self.master, data, title)
 
-    # --- Методы для привязки команд к кнопкам в ActionsPanel ---
+    def bind_save_command(self, command: Callable[[], None]) -> None:
+        pass
 
-    def bind_save_command(self, command: Callable[[], None]):
-        if hasattr(self.actions_panel, 'save_button') and self.actions_panel.save_button:
-            self.actions_panel.save_button.config(command=command)
+    def bind_delete_command(self, command: Callable[[], None]) -> None:
+        pass
 
-    def bind_delete_command(self, command: Callable[[], None]):
-        if hasattr(self.actions_panel, 'delete_button') and self.actions_panel.delete_button:
-            self.actions_panel.delete_button.config(command=command)
+    def bind_new_command(self, command: Callable[[], None]) -> None:
+        pass
 
-    def bind_new_command(self, command: Callable[[], None]):
-        if hasattr(self.actions_panel, 'new_button') and self.actions_panel.new_button:
-            self.actions_panel.new_button.config(command=command)
+    def bind_show_code_command(self, command: Callable[[Any, str], None], title: str) -> None:
+        pass
 
-    def bind_show_code_command(self, command: Callable[[Any, str], None], title: str):
-        if hasattr(self.actions_panel, 'show_code_button') and self.actions_panel.show_code_button:
-            # Предполагается, что дочерний класс реализует get_form_data()
-            self.actions_panel.show_code_button.config(command=lambda: command(self.get_form_data(), title))
-
-    # ИЗМЕНЕНИЕ: Новые методы для привязки команд к кнопкам палитр
-    def bind_node_palette_command(self, command: Callable[[], None]):
-        if hasattr(self.actions_panel, 'node_palette_button') and self.actions_panel.node_palette_button:
-            self.actions_panel.node_palette_button.config(command=command)
-
-    def bind_block_palette_command(self, command: Callable[[], None]):
-        if hasattr(self.actions_panel, 'block_palette_button') and self.actions_panel.block_palette_button:
-            self.actions_panel.block_palette_button.config(command=command)
-
-    def bind_location_palette_command(self, command: Callable[[], None]):
-        if hasattr(self.actions_panel, 'location_palette_button') and self.actions_panel.location_palette_button:
-            self.actions_panel.location_palette_button.config(command=command)
+    def bind_canvas_click(self, command: Callable[[Any], None]):
+        pass
 
     def get_form_data(self) -> dict:
-        """Должен быть реализован в дочернем классе."""
         raise NotImplementedError
+
+    def draw_canvas(self):
+        self.canvas.delete("all")
+
+    def set_service(self, service):
+        self.service = service

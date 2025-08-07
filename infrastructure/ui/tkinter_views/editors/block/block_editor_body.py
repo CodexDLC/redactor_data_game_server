@@ -31,9 +31,9 @@ class BlockEditorBody(BaseEditorBody):
         self.actions_panel.pack(fill=tk.BOTH, expand=True)
 
         # --- Настройка холста ---
+        self._create_context_menu_for_canvas()
         self.canvas.bind("<Button-1>", self._on_canvas_click)
         self.canvas.bind("<Configure>", lambda e: self.draw_block_on_canvas())
-        self._create_context_menu_for_canvas()
 
         self._set_initial_data()
 
@@ -43,15 +43,25 @@ class BlockEditorBody(BaseEditorBody):
         """
         self.service = service
         self.properties_panel.set_service(service)
+
+        # ПРАВИЛЬНАЯ ПРИВЯЗКА КОМАНД:
+        if self.actions_panel:
+            self.actions_panel.save_button.config(command=self.service.save_block)
+            self.actions_panel.delete_button.config(command=self.service.delete_block)
+            self.actions_panel.new_button.config(command=self.service.new_block)
+            self.actions_panel.show_code_button.config(
+                command=lambda: self._show_code_preview_window(self.get_form_data(), "Код данных блока"))
+
+        # Привязываем команду клика к сервису
         self.bind_canvas_click(self.service.on_canvas_click)
-        self.bind_save_command(self.service.save_block)
-        self.bind_delete_command(self.service.delete_block)
-        self.bind_new_command(self.service.new_block)
 
-        # ИЗМЕНЕНИЕ ЗДЕСЬ: Вызываем метод _show_code_preview_window
-        # вместо несуществующего метода в сервисе
-        self.bind_show_code_command(self._show_code_preview_window, "Код данных блока")
-
+    # NEW: Method to refresh the block gallery
+    def refresh_gallery(self):
+        """
+        Обновляет отображение миниатюр блоков на панели свойств.
+        """
+        if self.properties_panel and hasattr(self.properties_panel, 'block_gallery_panel'):
+            self.properties_panel.block_gallery_panel.draw_all_miniatures()
 
     def get_initial_data(self) -> dict:
         """Возвращает пустую структуру данных для нового блока."""
