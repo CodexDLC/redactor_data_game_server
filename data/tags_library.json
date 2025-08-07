@@ -4,6 +4,12 @@
         "wall"
     ],
     "block_tags": [
-        "void"
+        "corner",
+        "east",
+        "north",
+        "south",
+        "void",
+        "wall",
+        "west"
     ]
 }

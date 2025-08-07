@@ -76,14 +76,12 @@ class BlockEditorService:
         nodes_structure[row][col] = local_id_str
         block_data['nodes_structure'] = tuple(tuple(r) for r in nodes_structure)
 
-        block_data = self.enrich_data_with_colors(
-            block_data)  # --- ИСПРАВЛЕНО: Теперь сохраняем возвращаемое значение ---
+        block_data = self.enrich_data_with_colors(block_data)
         self.view.set_form_data(block_data)
 
         logging.info(
             f"BlockEditorService: Нод '{brush_node['node_key']}' размещен в [{row},{col}] с ID {local_id_str}.")
 
-    # --- ИСПРАВЛЕНО: Возвращаем словарь ---
     def enrich_data_with_colors(self, block_data: dict) -> dict:
         """
         Публичный метод для обогащения данных блока цветами.
@@ -104,6 +102,7 @@ class BlockEditorService:
         self.view.clear_form()
 
     def delete_block(self) -> None:
+        # --- ИСПРАВЛЕНО: Добавляем проверку на наличие ключа ---
         if self.current_block_key:
             key_to_delete = self.current_block_key
             self.repository.delete(key_to_delete)

@@ -4,14 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="73ec93af-afc8-4c10-812d-bfe3f817fd17" name="Changes" comment="future + refactoring">
-      <change afterPath="$PROJECT_DIR$/core/tag_filter_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/widgets/tag_input_widget.py" afterDir="false" />
+    <list default="true" id="73ec93af-afc8-4c10-812d-bfe3f817fd17" name="Changes" comment="doc: readme">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/block_editor/block_editor_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/block_editor/block_editor_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/persistence/initializer.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/persistence/initializer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_editor_controls.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/editors/block/block_editor_controls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/map_editor_app.py" beforeDir="false" afterPath="$PROJECT_DIR$/map_editor_app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/tags_library.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/tags_library.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/templates/blocks.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/templates/blocks.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/widgets/tag_input_widget.py" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/ui/tkinter_views/widgets/tag_input_widget.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,16 +46,16 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python.main.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;feature/location-editor&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.main.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "main"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\prime\PycharmProjects\redactor_data_game_server\core" />
@@ -141,7 +138,15 @@
       <option name="project" value="LOCAL" />
       <updated>1754518795855</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="doc: readme">
+      <option name="closed" value="true" />
+      <created>1754521599778</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1754521599778</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -149,6 +154,7 @@
     <MESSAGE value="future: new widget save_brush_dialog.py" />
     <MESSAGE value="control 0.2" />
     <MESSAGE value="future + refactoring" />
-    <option name="LAST_COMMIT_MESSAGE" value="future + refactoring" />
+    <MESSAGE value="doc: readme" />
+    <option name="LAST_COMMIT_MESSAGE" value="doc: readme" />
   </component>
 </project>

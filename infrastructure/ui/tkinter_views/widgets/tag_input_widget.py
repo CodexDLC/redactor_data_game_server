@@ -3,6 +3,8 @@ import tkinter as tk
 from tkinter import ttk
 from typing import List, Callable, Optional
 from ..styles import *
+# --- ИСПРАВЛЕНО: Добавляем импорт для контекстного меню ---
+from .context_menu import add_editing_menu
 
 
 class TagInputWidget(tk.Frame):
@@ -18,7 +20,6 @@ class TagInputWidget(tk.Frame):
         self.on_tags_changed = on_tags_changed
         self.tags = set()
 
-        # Фрейм для поля ввода
         entry_frame = tk.Frame(self, bg=BG_PRIMARY)
         entry_frame.pack(fill=tk.X, expand=True)
 
@@ -28,11 +29,12 @@ class TagInputWidget(tk.Frame):
         self.entry.pack(fill=tk.X, expand=True, side=tk.LEFT)
         self.entry_var.trace("w", self._on_input_changed)
 
-        # Фрейм для отображения тегов-пузырьков
+        # --- ИСПРАВЛЕНО: Применяем контекстное меню и горячие клавиши ---
+        add_editing_menu(self.entry)
+
         self.tags_frame = tk.Frame(self, bg=BG_PRIMARY)
         self.tags_frame.pack(fill=tk.X)
 
-        # Фрейм для Listbox с прокруткой
         listbox_frame = tk.Frame(self, bg=BG_PRIMARY)
         listbox_frame.pack(fill=tk.X, padx=2, pady=2)
 
@@ -68,7 +70,6 @@ class TagInputWidget(tk.Frame):
             self.tags.add(tag)
             self._update_display()
             self.entry_var.set("")
-            # Возвращаем фокус в поле ввода, чтобы можно было печатать дальше
             self.entry.focus_set()
 
     def _add_tag(self, event):
@@ -77,8 +78,6 @@ class TagInputWidget(tk.Frame):
             self.tags.add(tag)
             self._update_display()
             self.entry_var.set("")
-        # Возвращаем "break", чтобы предотвратить стандартное поведение
-        # Tab и Return и не терять фокус
         return "break"
 
     def _remove_tag(self, tag_to_remove: str):

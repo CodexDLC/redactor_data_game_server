@@ -25,30 +25,499 @@
         ],
         "nodes_data": {
             "0": {
-                "template_key": "void"
+                "template_key": "void",
+                "color": "#483d8b"
             },
             "1": {
-                "template_key": "void"
+                "template_key": "void",
+                "color": "#483d8b"
             },
             "2": {
-                "template_key": "void"
+                "template_key": "void",
+                "color": "#483d8b"
             },
             "5": {
-                "template_key": "void"
+                "template_key": "void",
+                "color": "#483d8b"
             },
             "4": {
+                "template_key": "void",
+                "color": "#483d8b"
+            },
+            "3": {
+                "template_key": "void",
+                "color": "#483d8b"
+            },
+            "6": {
+                "template_key": "void",
+                "color": "#483d8b"
+            },
+            "7": {
+                "template_key": "void",
+                "color": "#483d8b"
+            },
+            "8": {
+                "template_key": "void",
+                "color": "#483d8b"
+            }
+        },
+        "calculated_exits": {
+            "0": {
+                "north": null,
+                "north_east": null,
+                "east": "1",
+                "south_east": "4",
+                "south": "3",
+                "south_west": null,
+                "west": null,
+                "north_west": null
+            },
+            "1": {
+                "north": null,
+                "north_east": null,
+                "east": "2",
+                "south_east": "5",
+                "south": "4",
+                "south_west": "3",
+                "west": "0",
+                "north_west": null
+            },
+            "2": {
+                "north": null,
+                "north_east": null,
+                "east": null,
+                "south_east": null,
+                "south": "5",
+                "south_west": "4",
+                "west": "1",
+                "north_west": null
+            },
+            "3": {
+                "north": "0",
+                "north_east": "1",
+                "east": "4",
+                "south_east": "7",
+                "south": "6",
+                "south_west": null,
+                "west": null,
+                "north_west": null
+            },
+            "4": {
+                "north": "1",
+                "north_east": "2",
+                "east": "5",
+                "south_east": "8",
+                "south": "7",
+                "south_west": "6",
+                "west": "3",
+                "north_west": "0"
+            },
+            "5": {
+                "north": "2",
+                "north_east": null,
+                "east": null,
+                "south_east": null,
+                "south": "8",
+                "south_west": "7",
+                "west": "4",
+                "north_west": "1"
+            },
+            "6": {
+                "north": "3",
+                "north_east": "4",
+                "east": "7",
+                "south_east": null,
+                "south": null,
+                "south_west": null,
+                "west": null,
+                "north_west": null
+            },
+            "7": {
+                "north": "4",
+                "north_east": "5",
+                "east": "8",
+                "south_east": null,
+                "south": null,
+                "south_west": null,
+                "west": "6",
+                "north_west": "3"
+            },
+            "8": {
+                "north": "5",
+                "north_east": null,
+                "east": null,
+                "south_east": null,
+                "south": null,
+                "south_west": null,
+                "west": "7",
+                "north_west": "4"
+            }
+        },
+        "block_key": "void"
+    },
+    "corner_wall_void_northwest": {
+        "display_name": "Стена угловая",
+        "tags": [
+            "void",
+            "north",
+            "west",
+            "wall",
+            "corner"
+        ],
+        "width": 3,
+        "height": 3,
+        "nodes_structure": [
+            [
+                "0",
+                "1",
+                "2"
+            ],
+            [
+                "3",
+                "4",
+                "5"
+            ],
+            [
+                "6",
+                "7",
+                "8"
+            ]
+        ],
+        "nodes_data": {
+            "2": {
+                "template_key": "solid",
+                "color": "#654321"
+            },
+            "5": {
+                "template_key": "solid",
+                "color": "#654321"
+            },
+            "8": {
+                "template_key": "solid",
+                "color": "#654321"
+            },
+            "7": {
+                "template_key": "solid",
+                "color": "#654321"
+            },
+            "6": {
+                "template_key": "solid",
+                "color": "#654321"
+            },
+            "0": {
+                "template_key": "void",
+                "color": "#483d8b"
+            },
+            "3": {
+                "template_key": "void",
+                "color": "#483d8b"
+            },
+            "4": {
+                "template_key": "void",
+                "color": "#483d8b"
+            },
+            "1": {
+                "template_key": "void",
+                "color": "#483d8b"
+            }
+        },
+        "calculated_exits": {
+            "0": {
+                "north": null,
+                "north_east": null,
+                "east": "1",
+                "south_east": "4",
+                "south": "3",
+                "south_west": null,
+                "west": null,
+                "north_west": null
+            },
+            "1": {
+                "north": null,
+                "north_east": null,
+                "east": "2",
+                "south_east": "5",
+                "south": "4",
+                "south_west": "3",
+                "west": "0",
+                "north_west": null
+            },
+            "2": {
+                "north": null,
+                "north_east": null,
+                "east": null,
+                "south_east": null,
+                "south": "5",
+                "south_west": "4",
+                "west": "1",
+                "north_west": null
+            },
+            "3": {
+                "north": "0",
+                "north_east": "1",
+                "east": "4",
+                "south_east": "7",
+                "south": "6",
+                "south_west": null,
+                "west": null,
+                "north_west": null
+            },
+            "4": {
+                "north": "1",
+                "north_east": "2",
+                "east": "5",
+                "south_east": "8",
+                "south": "7",
+                "south_west": "6",
+                "west": "3",
+                "north_west": "0"
+            },
+            "5": {
+                "north": "2",
+                "north_east": null,
+                "east": null,
+                "south_east": null,
+                "south": "8",
+                "south_west": "7",
+                "west": "4",
+                "north_west": "1"
+            },
+            "6": {
+                "north": "3",
+                "north_east": "4",
+                "east": "7",
+                "south_east": null,
+                "south": null,
+                "south_west": null,
+                "west": null,
+                "north_west": null
+            },
+            "7": {
+                "north": "4",
+                "north_east": "5",
+                "east": "8",
+                "south_east": null,
+                "south": null,
+                "south_west": null,
+                "west": "6",
+                "north_west": "3"
+            },
+            "8": {
+                "north": "5",
+                "north_east": null,
+                "east": null,
+                "south_east": null,
+                "south": null,
+                "south_west": null,
+                "west": "7",
+                "north_west": "4"
+            }
+        },
+        "block_key": "corner_wall_void_north_west"
+    },
+    "corner_wall_southeastern": {
+        "display_name": "Стена угловая",
+        "tags": [
+            "south",
+            "corner",
+            "wall",
+            "east"
+        ],
+        "width": 3,
+        "height": 3,
+        "nodes_structure": [
+            [
+                "0",
+                "1",
+                "2"
+            ],
+            [
+                "3",
+                "4",
+                "5"
+            ],
+            [
+                "6",
+                "7",
+                "8"
+            ]
+        ],
+        "nodes_data": {
+            "2": {
+                "template_key": "solid"
+            },
+            "5": {
+                "template_key": "solid"
+            },
+            "8": {
+                "template_key": "solid"
+            },
+            "7": {
+                "template_key": "solid"
+            },
+            "6": {
+                "template_key": "solid"
+            },
+            "0": {
+                "template_key": "walkable"
+            },
+            "3": {
+                "template_key": "walkable"
+            },
+            "4": {
+                "template_key": "walkable"
+            },
+            "1": {
+                "template_key": "walkable"
+            }
+        },
+        "calculated_exits": {
+            "0": {
+                "north": null,
+                "north_east": null,
+                "east": "1",
+                "south_east": "4",
+                "south": "3",
+                "south_west": null,
+                "west": null,
+                "north_west": null
+            },
+            "1": {
+                "north": null,
+                "north_east": null,
+                "east": "2",
+                "south_east": "5",
+                "south": "4",
+                "south_west": "3",
+                "west": "0",
+                "north_west": null
+            },
+            "2": {
+                "north": null,
+                "north_east": null,
+                "east": null,
+                "south_east": null,
+                "south": "5",
+                "south_west": "4",
+                "west": "1",
+                "north_west": null
+            },
+            "3": {
+                "north": "0",
+                "north_east": "1",
+                "east": "4",
+                "south_east": "7",
+                "south": "6",
+                "south_west": null,
+                "west": null,
+                "north_west": null
+            },
+            "4": {
+                "north": "1",
+                "north_east": "2",
+                "east": "5",
+                "south_east": "8",
+                "south": "7",
+                "south_west": "6",
+                "west": "3",
+                "north_west": "0"
+            },
+            "5": {
+                "north": "2",
+                "north_east": null,
+                "east": null,
+                "south_east": null,
+                "south": "8",
+                "south_west": "7",
+                "west": "4",
+                "north_west": "1"
+            },
+            "6": {
+                "north": "3",
+                "north_east": "4",
+                "east": "7",
+                "south_east": null,
+                "south": null,
+                "south_west": null,
+                "west": null,
+                "north_west": null
+            },
+            "7": {
+                "north": "4",
+                "north_east": "5",
+                "east": "8",
+                "south_east": null,
+                "south": null,
+                "south_west": null,
+                "west": "6",
+                "north_west": "3"
+            },
+            "8": {
+                "north": "5",
+                "north_east": null,
+                "east": null,
+                "south_east": null,
+                "south": null,
+                "south_west": null,
+                "west": "7",
+                "north_west": "4"
+            }
+        }
+    },
+    "corner_wall_void_north_west": {
+        "display_name": "Стена угловая",
+        "tags": [
+            "void",
+            "north",
+            "west",
+            "wall",
+            "corner"
+        ],
+        "width": 3,
+        "height": 3,
+        "nodes_structure": [
+            [
+                "0",
+                "1",
+                "2"
+            ],
+            [
+                "3",
+                "4",
+                "5"
+            ],
+            [
+                "6",
+                "7",
+                "8"
+            ]
+        ],
+        "nodes_data": {
+            "2": {
+                "template_key": "solid"
+            },
+            "5": {
+                "template_key": "solid"
+            },
+            "8": {
+                "template_key": "solid"
+            },
+            "7": {
+                "template_key": "solid"
+            },
+            "6": {
+                "template_key": "solid"
+            },
+            "0": {
                 "template_key": "void"
             },
             "3": {
                 "template_key": "void"
             },
-            "6": {
+            "4": {
                 "template_key": "void"
             },
-            "7": {
-                "template_key": "void"
-            },
-            "8": {
+            "1": {
                 "template_key": "void"
             }
         },
