@@ -2,10 +2,10 @@
 from typing import Any
 
 from infrastructure.ui.tkinter_views.editors.block.block_editor_body import BlockEditorBody
-from infrastructure.ui.tkinter_views.editors.location.location_editor_view import LocationEditorView
+from infrastructure.ui.tkinter_views.editors.location.location_editor_body import LocationEditorBody # ИЗМЕНЕНИЕ: Используем новый класс
 from infrastructure.ui.tkinter_views.editors.prebuffer.prebuffer_editor_body import PrebufferEditorBody
 from core.block_editor.block_editor_service import BlockEditorService
-from core.location_editor.location_editor_service import LocationEditorService
+from core.location_editor.location_editor_service import LocationEditorService # ИЗМЕНЕНИЕ: Сервис для новой логики
 from core.prebuffer_editor.prebuffer_editor_service import PrebufferEditorService
 
 
@@ -21,14 +21,14 @@ class EditorInitializer:
         return view
 
     def create_location_editor(self):
-        view = LocationEditorView(self.app.body_container, self.app)
+        # ИЗМЕНЕНИЕ: Создаем новый редактор локаций
+        view = LocationEditorBody(self.app.body_container, self.app)
         service = LocationEditorService(view=view, app=self.app)
-        view.service = service
+        view.set_service(service)
         return view
 
     def create_prebuffer_editor(self):
         view = PrebufferEditorBody(self.app.body_container, self.app)
-        # ИЗМЕНЕНИЕ: Теперь передаем два новых репозитория
         service = PrebufferEditorService(view=view, block_repo=self.app.repos.block,
                                          node_repo=self.app.repos.node, app=self.app,
                                          prebuffer_template_repo=self.app.repos.prebuffer_template,

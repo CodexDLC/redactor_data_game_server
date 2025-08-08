@@ -9,7 +9,8 @@ from core.editor_initializer import EditorInitializer
 from core.tag_filter_service import TagFilterService
 
 from infrastructure.ui.tkinter_views.editors.block.block_editor_body import BlockEditorBody
-from infrastructure.ui.tkinter_views.editors.location.location_editor_view import LocationEditorView
+from infrastructure.ui.tkinter_views.editors.location.location_editor_body import \
+    LocationEditorBody  # ИЗМЕНЕНИЕ: Используем новый класс
 from infrastructure.ui.tkinter_views.editors.prebuffer.prebuffer_editor_body import PrebufferEditorBody
 
 from infrastructure.ui.tkinter_views.widgets.floating_palette import FloatingPaletteWindow
@@ -31,13 +32,13 @@ class MapEditorApp(tk.Frame):
         self.active_node_brush: Optional[dict] = None
         self.active_block_brush: Optional[dict] = None
         self.log_console_window: Optional[LogConsoleWindow] = None
-        self.current_editor_body: Optional[BlockEditorBody | LocationEditorView | PrebufferEditorBody] = None
+        self.current_editor_body: Optional[
+            BlockEditorBody | LocationEditorBody | PrebufferEditorBody] = None  # ИЗМЕНЕНИЕ: Обновили тип
 
         self.header: tk.Frame | None = None
         self.body_container: tk.Frame | None = None
         self.footer: tk.Label | None = None
 
-        # ИЗМЕНЕНИЕ: Словарь для хранения кнопок заголовка
         self.header_buttons: dict[str, tk.Button] = {}
 
         self._setup_layout()
@@ -56,18 +57,14 @@ class MapEditorApp(tk.Frame):
         self.footer.pack(side=tk.BOTTOM, fill=tk.X)
 
     def _create_header_buttons(self):
-        # ИЗМЕНЕНИЕ: Создаем кнопки и сохраняем их в словаре
-        self.header_buttons["block"] = tk.Button(self.header, text="Редактор Блоков", command=self.show_block_editor,
-                                                 bg=BG_PRIMARY, fg=FG_TEXT)
-        self.header_buttons["block"].pack(side=tk.LEFT, padx=5, pady=2)
+        tk.Button(self.header, text="Редактор Блоков", command=self.show_block_editor, bg=BG_PRIMARY,
+                  fg=FG_TEXT).pack(side=tk.LEFT, padx=5, pady=2)
 
-        self.header_buttons["prebuffer"] = tk.Button(self.header, text="Редактор Пре-буферов",
-                                                     command=self.show_prebuffer_editor, bg=BG_PRIMARY, fg=FG_TEXT)
-        self.header_buttons["prebuffer"].pack(side=tk.LEFT, padx=5, pady=2)
+        tk.Button(self.header, text="Редактор Пре-буферов", command=self.show_prebuffer_editor, bg=BG_PRIMARY,
+                  fg=FG_TEXT).pack(side=tk.LEFT, padx=5, pady=2)
 
-        self.header_buttons["location"] = tk.Button(self.header, text="Редактор Локаций",
-                                                    command=self.show_location_editor, bg=BG_PRIMARY, fg=FG_TEXT)
-        self.header_buttons["location"].pack(side=tk.LEFT, padx=5, pady=2)
+        tk.Button(self.header, text="Редактор Локаций", command=self.show_location_editor, bg=BG_PRIMARY,
+                  fg=FG_TEXT).pack(side=tk.LEFT, padx=5, pady=2)
 
         ttk.Separator(self.header, orient='vertical').pack(side=tk.LEFT, fill='y', padx=10, pady=2)
 
@@ -75,7 +72,6 @@ class MapEditorApp(tk.Frame):
                   fg=FG_TEXT).pack(side=tk.LEFT, padx=5, pady=2)
 
     def _highlight_active_button(self, editor_type: str):
-        # ИЗМЕНЕНИЕ: Сбрасываем все кнопки и выделяем активную
         for button in self.header_buttons.values():
             button.config(bg=BG_PRIMARY)
         if editor_type in self.header_buttons:
@@ -94,7 +90,6 @@ class MapEditorApp(tk.Frame):
         for widget in self.body_container.winfo_children():
             widget.destroy()
         self.current_editor_body = None
-        # ИЗМЕНЕНИЕ: Сбрасываем выделение с кнопок при очистке
         self._highlight_active_button("")
 
     def show_welcome_screen(self):
@@ -107,24 +102,21 @@ class MapEditorApp(tk.Frame):
         self.current_editor_body = self.editors.create_block_editor()
         self.current_editor_body.pack(fill=tk.BOTH, expand=True)
         self.set_status_message("Режим: Редактор Блоков")
-        # ИЗМЕНЕНИЕ: Выделяем кнопку
         self._highlight_active_button("block")
 
     def show_location_editor(self):
         self._clear_body_container()
-        # ИЗМЕНЕНИЕ: Отображаем заглушку вместо полноценного редактора
-        tk.Label(self.body_container, text="Редактор локаций в разработке. Скоро здесь появится что-то интересное!",
-                 font=("Helvetica", 16), fg=FG_TEXT, bg=BG_PRIMARY, wraplength=400).pack(expand=True)
-        self.set_status_message("Режим: Редактор Локаций (в разработке)")
+        # ИЗМЕНЕНИЕ: Заменяем заглушку на вызов нового редактора
+        self.current_editor_body = self.editors.create_location_editor()
+        self.current_editor_body.pack(fill=tk.BOTH, expand=True)
+        self.set_status_message("Режим: Редактор Локаций")
         self._highlight_active_button("location")
-        # ИЗМЕНЕНИЕ: current_editor_body не создается, так как редактор - заглушка.
 
     def show_prebuffer_editor(self):
         self._clear_body_container()
         self.current_editor_body = self.editors.create_prebuffer_editor()
         self.current_editor_body.pack(fill=tk.BOTH, expand=True)
         self.set_status_message("Режим: Редактор Пре-буферов")
-        # ИЗМЕНЕНИЕ: Выделяем кнопку
         self._highlight_active_button("prebuffer")
 
     def set_active_brush(self, brush_data: dict, brush_type: str):
